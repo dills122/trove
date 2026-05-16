@@ -1,0 +1,70 @@
+<mat-card
+  class="relative overflow-hidden rounded-3xl border border-white/10 bg-white/90 text-slate-900 shadow-xl"
+>
+  <div
+    class="absolute inset-x-0 top-0 h-1 w-full bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-amber-400"
+  ></div>
+  <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="space-y-1">
+        <p class="text-sm font-semibold uppercase tracking-wide text-cyan-600">
+          Live component demo
+        </p>
+        <h3 class="text-xl font-semibold leading-tight">
+          Angular Material + Tailwind working together
+        </h3>
+        <p class="text-sm text-slate-600">
+          Material provides structure and accessibility; Tailwind handles layout, spacing, and
+          responsive behavior.
+        </p>
+      </div>
+      <button mat-raised-button color="primary" class="shadow-md shadow-cyan-300/40">
+        Primary action
+      </button>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Layout</p>
+        <p class="text-sm text-slate-700">
+          Tailwind utilities drive spacing, gaps, and responsive columns without fighting Angular
+          Material defaults.
+        </p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Theming</p>
+        <p class="text-sm text-slate-700">
+          Material palettes stay intact while gradients, rounded corners, and shadows add brand
+          flavor.
+        </p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Signals-friendly</p>
+        <p class="text-sm text-slate-700">
+          Standalone components and signal-based APIs mean less boilerplate when wiring dynamic
+          data.
+        </p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Testing ready</p>
+        <p class="text-sm text-slate-700">
+          Jest + Testing Library setup lets you snapshot UI states or assert ARIA-ready behaviors
+          out of the box.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button mat-raised-button color="accent" class="shadow-md shadow-amber-300/40">
+        Accent CTA
+      </button>
+      <button mat-stroked-button class="border-slate-300 text-slate-800">Ghost button</button>
+      <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+        Responsive by default
+      </span>
+      <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+        A11y-first components
+      </span>
+    </div>
+  </div>
+</mat-card>

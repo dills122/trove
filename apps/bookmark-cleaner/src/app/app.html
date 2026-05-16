@@ -1,0 +1,203 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :host {
+    font-family: 'Space Grotesk', 'Inter Tight', 'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+</style>
+
+<main class="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-50">
+  <div class="pointer-events-none absolute inset-0">
+    <div
+      class="absolute -left-24 top-8 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-400/40 via-fuchsia-500/35 to-amber-400/35 blur-3xl"
+    ></div>
+    <div
+      class="absolute right-[-14%] top-20 h-96 w-96 rounded-full bg-gradient-to-br from-indigo-500/30 via-sky-500/20 to-teal-400/25 blur-[110px]"
+    ></div>
+    <div
+      class="absolute inset-x-10 bottom-[-40%] h-80 rounded-[44px] bg-gradient-to-r from-white/5 via-white/0 to-white/5 blur-3xl"
+    ></div>
+  </div>
+
+  <section class="relative mx-auto flex max-w-6xl flex-col gap-14 px-6 py-14 md:px-10">
+    <header class="flex flex-col gap-5">
+      <span
+        class="w-fit rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-100"
+      >
+        Angular 20 • Material • Tailwind
+      </span>
+      <h1 class="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+        Build polished Angular apps fast with {{ title() }}
+      </h1>
+      <p class="max-w-3xl text-lg text-slate-200 md:text-xl">
+        A batteries-included starter that blends Angular standalone components, Angular Material
+        theming, Tailwind utility speed, Jest-powered tests, and sensible linting so you can ship
+        production UI without wrestling the stack.
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          class="inline-flex items-center gap-2 rounded-full bg-white text-slate-900 px-4 py-2 text-sm font-semibold shadow-lg shadow-cyan-500/20 transition hover:-translate-y-[1px] hover:shadow-cyan-400/30"
+          href="https://github.com/dsteele/angular-mat-tailwind-starter"
+          target="_blank"
+          rel="noopener"
+        >
+          View repo
+          <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16">
+            <path
+              fill="currentColor"
+              d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"
+            />
+          </svg>
+        </a>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-[1px] hover:border-white/40"
+          (click)="scrollToExample()"
+        >
+          Jump to live example
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            height="16"
+            width="16"
+          >
+            <path
+              d="M12 4v16M5 13l7 7 7-7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="grid gap-4 md:grid-cols-3">
+      <article
+        class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-indigo-500/10"
+      >
+        <div class="mb-3 flex items-center gap-2 text-sm font-semibold text-cyan-200">
+          <span
+            class="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_0.75rem] shadow-cyan-400/60"
+          ></span>
+          UI craft
+        </div>
+        <h3 class="mb-2 text-xl font-semibold">Material + Tailwind harmony</h3>
+        <p class="text-sm text-slate-200">
+          Angular Material components keep accessibility and consistency, while Tailwind utilities
+          handle layout, spacing, and responsive polish.
+        </p>
+      </article>
+      <article
+        class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-amber-500/10"
+      >
+        <div class="mb-3 flex items-center gap-2 text-sm font-semibold text-amber-200">
+          <span
+            class="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_0.75rem] shadow-amber-400/60"
+          ></span>
+          Modern Angular
+        </div>
+        <h3 class="mb-2 text-xl font-semibold">Standalone + signals ready</h3>
+        <p class="text-sm text-slate-200">
+          Standalone components, signal-friendly patterns, and route-first structure make adding new
+          features feel natural.
+        </p>
+      </article>
+      <article
+        class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-emerald-500/10"
+      >
+        <div class="mb-3 flex items-center gap-2 text-sm font-semibold text-emerald-200">
+          <span
+            class="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_0.75rem] shadow-emerald-400/60"
+          ></span>
+          Ship with confidence
+        </div>
+        <h3 class="mb-2 text-xl font-semibold">Jest, lint, and formatting</h3>
+        <p class="text-sm text-slate-200">
+          Jest specs, ESLint, and Prettier are wired up from the start so code stays healthy as your
+          team scales.
+        </p>
+      </article>
+    </section>
+
+    <section id="example" class="grid gap-10 lg:grid-cols-[1.2fr_0.9fr]">
+      <div class="rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-cyan-500/15">
+        <app-example></app-example>
+      </div>
+      <div class="flex flex-col gap-4">
+        <h2 class="text-2xl font-semibold md:text-3xl">Starter experience at a glance</h2>
+        <p class="text-slate-200">
+          The example card on the left mixes Angular Material components with Tailwind utilities,
+          illustrating how to compose dense layouts without leaving the design system.
+        </p>
+        <ul class="space-y-3 text-sm text-slate-200">
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-emerald-200"
+            >
+              ✓
+            </span>
+            Typed Angular 20 setup with standalone components, strict TS config, and routes ready
+            for expansion.
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-400/20 text-indigo-200"
+            >
+              ✓
+            </span>
+            Tailwind already layered with Material theming tokens so spacing, color, and typography
+            stay cohesive.
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-400/20 text-amber-100"
+            >
+              ✓
+            </span>
+            Productivity workflows baked in: Jest unit tests, ESLint, Prettier, and Lefthook for
+            dependable commits.
+          </li>
+        </ul>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div
+            class="rounded-2xl border border-white/10 bg-slate-900/60 p-4 font-mono text-xs text-slate-100 shadow-inner shadow-cyan-500/10"
+          >
+            <div class="mb-2 text-[11px] uppercase tracking-wide text-slate-400">Get running</div>
+            <div class="space-y-1">
+              <div>
+                <span class="text-cyan-300">pnpm</span>
+                install
+              </div>
+              <div>
+                <span class="text-cyan-300">pnpm</span>
+                start
+              </div>
+              <div>
+                <span class="text-cyan-300">pnpm</span>
+                test
+              </div>
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100 shadow-inner shadow-emerald-500/10"
+          >
+            <div class="mb-2 text-[11px] uppercase tracking-wide text-slate-200">
+              Ready to extend
+            </div>
+            <p>
+              Drop in new standalone components, theme with Material tokens, and use Tailwind for
+              fast layout tweaks across breakpoints.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<router-outlet />

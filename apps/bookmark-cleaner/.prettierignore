@@ -1,0 +1,11 @@
+# Build artifacts
+dist
+
+# Angular cache
+.angular
+
+# Package manager cache/store
+.pnpm-store
+
+# Dependencies
+node_modules

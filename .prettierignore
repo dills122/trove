@@ -1,0 +1,17 @@
+# Rush generated/managed files
+common/temp/
+common/autoinstallers/
+common/config/rush/pnpm-lock.yaml
+
+# Dependencies and build outputs
+node_modules/
+dist/
+coverage/
+
+# Local tool/state files
+.cache/
+.heft/
+.rush/
+
+# Keep MVP planning docs manually formatted
+*.md
