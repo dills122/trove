@@ -13,7 +13,8 @@
     "template:init": "schematics ./tools/schematics/collection.json:init",
     "lint": "eslint . --ext .ts,.js,.html,.json",
     "lint:fix": "eslint . --ext .ts,.js,.html,.json --fix",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit"
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "start:dev": "ng serve"
   },
   "private": true,
   "type": "module",
