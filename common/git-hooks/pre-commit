@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+
+node common/scripts/install-run-rush.js lint

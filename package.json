@@ -1,0 +1,18 @@
+{
+  "name": "trove-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@8.15.8",
+  "engines": {
+    "node": ">=20.14.0 <23.0.0"
+  },
+  "scripts": {
+    "update": "node common/scripts/install-run-rush.js update",
+    "build": "node common/scripts/install-run-rush.js build",
+    "lint": "node common/scripts/install-run-rush.js lint",
+    "test": "node common/scripts/install-run-rush.js test",
+    "dev:web": "node common/scripts/install-run-rush.js web:dev",
+    "dev:worker": "node common/scripts/install-run-rush.js worker:dev",
+    "typecheck": "node common/scripts/install-run-rush.js typecheck"
+  }
+}

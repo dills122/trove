@@ -1,6 +1,6 @@
 # Trove Monorepo
 
-This repository is scaffolded for the Bookmark Utility MVP.
+Trove is a local-first bookmark cleanup MVP.
 
 ## Projects
 
@@ -9,17 +9,25 @@ This repository is scaffolded for the Bookmark Utility MVP.
 
 ## Getting started
 
-1. Ensure Node 20+ is active.
+1. Ensure Node `>=20.14.0 <23.0.0` is active.
 2. Run `node common/scripts/install-run-rush.js update`.
-3. Run `rush build`.
+3. Run `node common/scripts/install-run-rush.js build`.
 
-Run specific projects:
+Useful commands:
+- `npm run dev:web`
+- `npm run dev:worker`
+- `npm run lint`
+- `npm run test`
+- `npm run typecheck`
 
-- Frontend: `rushx start` from `apps/bookmark-cleaner`
-- Worker: `rushx dev` from `services/link-health-worker`
+## Planning docs
 
-## MVP doc
+- `TECH_DESIGN.md`
+- `IMPLEMENTATION_PLAN.md`
+- `MVP_BACKLOG.md`
+- `WORKPLAN.md`
+- `NEXT_STEPS.md`
 
-Source doc:
+## Source MVP reference
 
 - `Below is a full MVP tech design you coul.md`
