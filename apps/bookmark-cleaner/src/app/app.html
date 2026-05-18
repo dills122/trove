@@ -1,11 +1,38 @@
 <main class="min-h-screen bg-slate-950 text-slate-100">
-  <header class="border-b border-slate-800">
-    <nav class="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
-      <span class="font-semibold tracking-wide">Trove</span>
-      <a routerLink="/import" routerLinkActive="text-cyan-300" class="text-sm">Import</a>
-      <a routerLink="/dashboard" routerLinkActive="text-cyan-300" class="text-sm">Dashboard</a>
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-cyan-300 focus:px-3 focus:py-2 focus:text-slate-950"
+  >
+    Skip to main content
+  </a>
+
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
+    <nav class="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4" aria-label="Primary">
+      <div>
+        <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Trove</p>
+        <p class="text-sm text-slate-300">Local-first bookmark cleanup</p>
+      </div>
+
+      <div class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 p-1">
+        <a
+          routerLink="/import"
+          routerLinkActive="bg-cyan-300 text-slate-950"
+          class="rounded-lg px-3 py-2 text-sm text-slate-200 transition hover:text-white"
+        >
+          Import
+        </a>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="bg-cyan-300 text-slate-950"
+          class="rounded-lg px-3 py-2 text-sm text-slate-200 transition hover:text-white"
+        >
+          Dashboard
+        </a>
+      </div>
     </nav>
   </header>
 
-  <router-outlet />
+  <section id="main-content" class="pb-12">
+    <router-outlet />
+  </section>
 </main>
