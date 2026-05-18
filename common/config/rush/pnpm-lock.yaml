@@ -37,6 +37,9 @@ importers:
       '@angular/router':
         specifier: ^20.1.0
         version: 20.3.21(@angular/common@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(rxjs@7.8.2)
+      dexie:
+        specifier: ^4.0.11
+        version: 4.4.2
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -5137,6 +5140,10 @@ packages:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
     engines: {node: '>=8'}
     dev: true
+
+  /dexie@4.4.2:
+    resolution: {integrity: sha512-zMtV8q79EFE5U8FKZvt0Y/77PCU/Hr/RDxv1EDeo228L+m/HTbeN2AjoQm674rhQCX8n3ljK87lajt7UQuZfvw==}
+    dev: false
 
   /diff-sequences@27.5.1:
     resolution: {integrity: sha512-k1gCAXAsNgLwEL+Y8Wvl+M6oEFj5bgazfZULpS5CneoPPXRaCCW7dm+q21Ky2VEE5X+VeRDBVg1Pcvvsr4TtNQ==}

@@ -1,28 +1,17 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterOutlet } from '@angular/router';
-import { ExampleComponent } from './components/example/example.component';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { WorkspaceStore } from './core/store/workspace.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatSlideToggleModule, ExampleComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('angular-mat-tailwind-starter');
-  private readonly document = inject(DOCUMENT);
+  private readonly workspaceStore = inject(WorkspaceStore);
 
-  protected scrollToExample(): void {
-    const target = this.document.getElementById('example');
-    const viewport = this.document.defaultView;
-
-    if (!target || !viewport) {
-      return;
-    }
-
-    const top = target.getBoundingClientRect().top + viewport.scrollY - 12;
-    viewport.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+  public constructor() {
+    void this.workspaceStore.load();
   }
 }
