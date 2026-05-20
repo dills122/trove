@@ -20,6 +20,88 @@ interface WarningGroup {
   imports: [CommonModule, RouterLink],
   template: `
     <section class="mx-auto w-full max-w-6xl space-y-5 px-4 py-5 max-[375px]:space-y-4 max-[375px]:px-3.5 sm:space-y-8 sm:px-6 sm:py-10">
+      <div *ngIf="showIntroModal()" class="fixed inset-0 z-40">
+        <button
+          type="button"
+          class="absolute inset-0 h-full w-full bg-slate-950/80 backdrop-blur-sm"
+          (click)="dismissIntroModal()"
+          aria-label="Close first-time import guide"
+        ></button>
+
+        <section
+          role="dialog"
+          aria-label="First-time import guide"
+          class="absolute left-1/2 top-1/2 z-50 w-[min(95vw,60rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-slate-950 sm:p-6"
+        >
+          <header class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-cyan-300">Welcome</p>
+              <h2 class="mt-1 text-xl font-semibold text-slate-100">How to export bookmarks (Chrome)</h2>
+              <p class="mt-1 text-sm text-slate-300">
+                Use this once, then upload the exported HTML file in Trove.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-white/15 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/5"
+              (click)="dismissIntroModal()"
+            >
+              Close
+            </button>
+          </header>
+
+          <div class="grid gap-3 sm:grid-cols-3">
+            <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+              <img
+                src="infographics/chrome-step-1.svg"
+                alt="Chrome Bookmarks Manager view with shortcut highlighted"
+                class="mb-3 h-auto w-full rounded-lg border border-white/10"
+              />
+              <p class="text-sm font-medium text-slate-100">1. Open Bookmarks Manager</p>
+              <p class="mt-1 text-xs text-slate-300">
+                macOS:
+                <span class="font-semibold text-slate-100">⌘ + ⌥ + B</span>
+                · Windows/Linux:
+                <span class="font-semibold text-slate-100">Ctrl + Shift + O</span>
+              </p>
+            </article>
+
+            <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+              <img
+                src="infographics/chrome-step-2.svg"
+                alt="Chrome bookmarks interface showing three-dot menu area"
+                class="mb-3 h-auto w-full rounded-lg border border-white/10"
+              />
+              <p class="text-sm font-medium text-slate-100">2. Use the menu</p>
+              <p class="mt-1 text-xs text-slate-300">Open the three-dot menu in Bookmark Manager.</p>
+            </article>
+
+            <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+              <img
+                src="infographics/chrome-step-3.svg"
+                alt="Exported bookmark HTML file and upload flow"
+                class="mb-3 h-auto w-full rounded-lg border border-white/10"
+              />
+              <p class="text-sm font-medium text-slate-100">3. Export + upload</p>
+              <p class="mt-1 text-xs text-slate-300">
+                Select Export bookmarks, then upload the <code>.html</code> file here.
+              </p>
+            </article>
+          </div>
+
+          <footer class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
+            <p class="text-xs text-slate-400">Source bookmarks are never modified in place.</p>
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950"
+              (click)="dismissIntroModal()"
+            >
+              Got it
+            </button>
+          </footer>
+        </section>
+      </div>
+
       <header class="grid gap-4 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
         <div class="space-y-3">
           <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 1 • Import</p>
@@ -291,17 +373,25 @@ interface WarningGroup {
   `,
 })
 export class ImportPageComponent {
+  private static readonly INTRO_MODAL_KEY = 'trove-import-intro-seen';
   readonly store = inject(WorkspaceStore);
   readonly uiPreferences = inject(UiPreferencesStore);
   private readonly worker = inject(BookmarkWorkerService);
   readonly error = signal<string | null>(null);
   readonly showSnapshotSummary = signal(false);
   readonly showHelp = signal(false);
+  readonly showIntroModal = signal(false);
   readonly hasPersistedSnapshot = computed(() => this.store.snapshot() !== null);
   readonly bookmarkManagerShortcut = computed(() => {
     const os = this.uiPreferences.os();
     return getBookmarkManagerShortcut(os === 'mac' ? 'mac' : os === 'windows' ? 'windows' : 'linux');
   });
+
+  public constructor() {
+    if (typeof localStorage !== 'undefined' && !localStorage.getItem(ImportPageComponent.INTRO_MODAL_KEY)) {
+      this.showIntroModal.set(true);
+    }
+  }
 
   readonly warningGroups = computed<WarningGroup[]>(() => {
     const warnings = this.store.snapshot()?.warnings ?? [];
@@ -367,6 +457,13 @@ export class ImportPageComponent {
   setGuideBrowser(browser: string): void {
     if (browser === 'chrome' || browser === 'edge' || browser === 'firefox' || browser === 'safari') {
       this.uiPreferences.setBrowser(browser);
+    }
+  }
+
+  dismissIntroModal(): void {
+    this.showIntroModal.set(false);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(ImportPageComponent.INTRO_MODAL_KEY, '1');
     }
   }
 }
