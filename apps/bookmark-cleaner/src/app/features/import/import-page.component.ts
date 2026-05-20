@@ -17,11 +17,11 @@ interface WarningGroup {
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+    <section class="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-10">
       <header class="grid gap-4 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
         <div class="space-y-3">
           <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 1 • Import</p>
-          <h1 class="text-4xl font-semibold tracking-tight">Bring in your bookmark export</h1>
+          <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Bring in your bookmark export</h1>
           <p class="max-w-2xl text-base text-slate-300">
             Start with a Chrome export HTML file. Trove reads it into a working snapshot so your
             original file and browser bookmarks remain untouched.
@@ -38,13 +38,13 @@ interface WarningGroup {
         </aside>
       </header>
 
-      <section class="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/40">
+      <section class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/40 sm:p-6">
         <label for="bookmark-file" class="mb-3 block text-sm font-medium text-slate-100">Bookmark HTML file</label>
         <input
           id="bookmark-file"
           type="file"
           accept=".html,text/html"
-          class="block w-full rounded-xl border border-white/15 bg-slate-950/80 px-4 py-3 text-sm text-slate-100"
+          class="block min-h-11 w-full rounded-xl border border-white/15 bg-slate-950/80 px-4 py-3 text-sm text-slate-100"
           (change)="onFileSelected($event)"
         />
         <p class="mt-3 text-xs text-slate-400">
@@ -65,7 +65,7 @@ interface WarningGroup {
       </div>
 
       <section *ngIf="store.snapshot() as snapshot" class="space-y-6" aria-label="Import summary">
-        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
           <article class="metric-card">
             <p class="metric-label">Exported links</p>
             <p class="metric-value">{{ snapshot.analysis.totalBookmarks }}</p>
@@ -84,7 +84,7 @@ interface WarningGroup {
           </article>
         </div>
 
-        <section *ngIf="warningGroups().length" class="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-4">
+        <section *ngIf="warningGroups().length" class="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
           <header>
             <h2 class="text-xl font-semibold">Quality checks</h2>
             <p class="text-xs text-slate-400">Exported links include bookmarks from all folders, archived collections, and bookmarklets.</p>
@@ -93,27 +93,27 @@ interface WarningGroup {
             </p>
           </header>
 
-          <div class="grid gap-3 md:grid-cols-2">
-            <details *ngFor="let group of warningGroups()" class="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+          <div class="grid gap-3 lg:grid-cols-2">
+            <details *ngFor="let group of warningGroups()" class="rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:p-4">
               <summary class="cursor-pointer list-none font-medium text-slate-100">
                 {{ group.label }}
                 <span class="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">{{ group.count }}</span>
               </summary>
-              <ul class="mt-3 max-h-44 space-y-1 overflow-auto text-xs text-slate-300">
+              <ul class="mt-3 max-h-44 space-y-1 overflow-auto break-words text-xs text-slate-300">
                 <li *ngFor="let message of group.messages.slice(0, 20)">• {{ message }}</li>
               </ul>
             </details>
           </div>
         </section>
 
-        <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-6">
+        <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-5 sm:p-6">
           <h2 class="text-lg font-semibold">Ready to review</h2>
           <p class="mt-1 text-sm text-slate-300">
             Your source file is untouched. Continue to inspect quality and prepare cleanup actions.
           </p>
           <a
             routerLink="/dashboard"
-            class="mt-4 inline-flex items-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
+            class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
           >
             Continue to review
           </a>

@@ -8,10 +8,10 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+    <section class="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-10">
       <header class="space-y-3">
         <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 2 • Review</p>
-        <h1 class="text-4xl font-semibold tracking-tight">See what your data is telling you</h1>
+        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">See what your data is telling you</h1>
         <p class="max-w-3xl text-base text-slate-300">
           Use this snapshot to decide whether to move into duplicate cleanup and organization.
         </p>
@@ -28,7 +28,7 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
       </section>
 
       <ng-container *ngIf="store.snapshot() as snapshot">
-        <section class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Key metrics">
+        <section class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4" aria-label="Key metrics">
           <article class="metric-card">
             <p class="metric-label">Exported links</p>
             <p class="metric-value">{{ snapshot.analysis.totalBookmarks }}</p>
@@ -48,7 +48,7 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
         </section>
 
         <section class="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-6 space-y-4">
+          <article class="space-y-4 rounded-3xl border border-white/10 bg-slate-900/60 p-4 sm:p-6">
             <h2 class="text-xl font-semibold">Quality insight</h2>
             <ul class="space-y-2 text-sm text-slate-200">
               <li class="flex items-center justify-between">
@@ -71,7 +71,7 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
             <p class="text-sm text-slate-300">{{ guidance() }}</p>
           </article>
 
-          <article class="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-4">
+          <article class="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
             <h2 class="text-xl font-semibold">What to do next</h2>
             <ol class="space-y-2 text-sm text-slate-200">
               <li>1. Review warnings from import.</li>
@@ -79,12 +79,12 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
               <li>3. Build a proposed folder organization.</li>
             </ol>
             <div class="flex flex-wrap gap-3 pt-2">
-              <a routerLink="/import" class="rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-200">
+              <a routerLink="/import" class="rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-200 min-h-11 inline-flex items-center">
                 Re-import file
               </a>
               <button
                 type="button"
-                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950"
+                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 min-h-11"
                 disabled
                 aria-disabled="true"
               >
@@ -95,32 +95,32 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
         </section>
 
         <section class="grid gap-4 lg:grid-cols-3">
-          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 sm:p-5">
             <h3 class="text-lg font-semibold">Scheme mix</h3>
             <ul class="mt-3 space-y-2 text-sm text-slate-200">
               <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.schemeBreakdown">
                 <span>{{ item.key }}</span>
-                <strong>{{ item.count }}</strong>
+                <strong class="shrink-0">{{ item.count }}</strong>
               </li>
             </ul>
           </article>
 
-          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 sm:p-5">
             <h3 class="text-lg font-semibold">Top hosts (include subdomains)</h3>
-            <ul class="mt-3 space-y-2 text-sm text-slate-200 max-h-64 overflow-auto">
+            <ul class="mt-3 space-y-2 text-sm text-slate-200 lg:max-h-64 lg:overflow-auto">
               <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.topHosts">
-                <span class="truncate max-w-[16rem]" [title]="item.key">{{ item.key }}</span>
-                <strong>{{ item.count }}</strong>
+                <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
+                <strong class="shrink-0">{{ item.count }}</strong>
               </li>
             </ul>
           </article>
 
-          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 sm:p-5">
             <h3 class="text-lg font-semibold">Top shared domains (exclude subdomains)</h3>
-            <ul class="mt-3 space-y-2 text-sm text-slate-200 max-h-64 overflow-auto">
+            <ul class="mt-3 space-y-2 text-sm text-slate-200 lg:max-h-64 lg:overflow-auto">
               <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.topRegistrableDomains">
-                <span class="truncate max-w-[16rem]" [title]="item.key">{{ item.key }}</span>
-                <strong>{{ item.count }}</strong>
+                <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
+                <strong class="shrink-0">{{ item.count }}</strong>
               </li>
             </ul>
           </article>

@@ -39,13 +39,28 @@ body {
 }
 
 .workflow-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(226, 232, 240, 0.8);
   border-radius: 999px;
   font-size: 0.75rem;
   line-height: 1rem;
-  padding: 0.35rem 0.7rem;
+  padding: 0.48rem 0.86rem;
+  white-space: nowrap;
+}
+
+.workflow-step--block {
+  width: 100%;
+  min-height: 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .workflow-step--block {
+    width: auto;
+  }
 }
 
 .workflow-step--active {
@@ -54,11 +69,28 @@ body {
   border-color: transparent;
 }
 
+
+.workflow-step--complete {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(74, 222, 128, 0.55);
+  color: #bbf7d0;
+}
+
+.workflow-step--disabled {
+  opacity: 0.6;
+}
+
 .metric-card {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(15, 23, 42, 0.6);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0.9rem;
+}
+
+@media (min-width: 640px) {
+  .metric-card {
+    padding: 1rem;
+  }
 }
 
 .metric-label {
@@ -70,10 +102,16 @@ body {
 
 .metric-value {
   margin-top: 0.35rem;
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   line-height: 1;
   font-weight: 650;
   color: #f8fafc;
+}
+
+@media (min-width: 1024px) {
+  .metric-value {
+    font-size: 1.7rem;
+  }
 }
 
 .sr-only {

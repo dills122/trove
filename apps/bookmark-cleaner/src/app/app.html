@@ -1,52 +1,69 @@
 <main class="app-shell min-h-screen text-slate-100">
   <a
     href="#main-content"
-    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-cyan-300 focus:px-3 focus:py-2 focus:text-slate-950"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-cyan-300 focus:px-3 focus:py-2 focus:text-slate-950"
   >
     Skip to main content
   </a>
 
   <header class="sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
-    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4" aria-label="Primary">
-      <div class="flex items-center gap-3">
-        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-300 to-emerald-300"></div>
-        <div>
+    <nav
+      class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4"
+      aria-label="Primary"
+    >
+      <div class="min-w-0 flex items-center gap-3">
+        <div class="h-8 w-8 shrink-0 rounded-lg bg-gradient-to-br from-cyan-300 to-emerald-300"></div>
+        <div class="min-w-0">
           <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Trove</p>
-          <p class="text-sm text-slate-200">Quietly clean your bookmark mess</p>
+          <p class="truncate text-sm text-slate-200">Quietly clean your bookmark mess</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1">
+      <div class="grid w-full grid-cols-2 rounded-2xl border border-white/10 bg-white/5 p-1 sm:w-[11.5rem] sm:shrink-0">
         <a
           routerLink="/import"
           routerLinkActive="bg-white text-slate-950"
-          class="rounded-xl px-4 py-2 text-sm font-medium text-slate-200 transition"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-medium leading-none text-slate-200 transition"
         >
           Import
         </a>
         <a
           routerLink="/dashboard"
           routerLinkActive="bg-white text-slate-950"
-          class="rounded-xl px-4 py-2 text-sm font-medium text-slate-200 transition"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-medium leading-none text-slate-200 transition"
         >
           Review
         </a>
       </div>
     </nav>
-
-    <section class="mx-auto flex w-full max-w-6xl items-center gap-2 px-6 pb-4" aria-label="Workflow steps">
-      <span class="workflow-step workflow-step--active">1. Import</span>
-      <span class="workflow-step">2. Review</span>
-      <span class="workflow-step">3. Organize</span>
-      <span class="workflow-step">4. Export</span>
-    </section>
   </header>
 
-  <section id="main-content" class="relative pb-16">
-    <div class="pointer-events-none absolute inset-0 -z-10">
-      <div class="absolute left-[-8rem] top-10 h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl"></div>
-      <div class="absolute right-[-6rem] top-40 h-80 w-80 rounded-full bg-emerald-500/15 blur-3xl"></div>
+  <section id="main-content" class="relative pb-14 sm:pb-16">
+    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div class="absolute left-[-8rem] top-10 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl sm:h-80 sm:w-80"></div>
+      <div class="absolute right-[-6rem] top-40 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl sm:h-80 sm:w-80"></div>
     </div>
+
+    <section class="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6" aria-label="Workflow steps">
+      <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 sm:overflow-x-auto sm:pb-1">
+        @for (step of steps; track step.id) {
+          @if (step.path) {
+            <a
+              [routerLink]="step.path"
+              class="workflow-step workflow-step--block"
+              [class.workflow-step--active]="isStepActive(step.id)"
+              [class.workflow-step--complete]="isStepComplete(step.id)"
+            >
+              {{ step.id }}. {{ step.label }}
+            </a>
+          } @else {
+            <span class="workflow-step workflow-step--block workflow-step--disabled">{{ step.id }}. {{ step.label }}</span>
+          }
+        }
+      </div>
+    </section>
 
     <router-outlet />
   </section>
