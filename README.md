@@ -1,44 +1,50 @@
-# Trove Monorepo
+<p align="center">
+  <img src="assets/logo-with-text-clean.png" alt="Trove" width="680" />
+</p>
 
-Trove is a local-first bookmark cleanup MVP.
+# Trove
 
-## Projects
+Trove is a local-first bookmark cleanup app. Import a browser bookmark export, analyze quality and duplication, then organize and export safely without mutating the source file.
 
-- `apps/bookmark-cleaner`: Angular + Material + Tailwind PWA frontend
-- `services/link-health-worker`: Cloudflare Worker + D1 service for link health checks
+## Repo Layout
 
-## Getting started
+- `apps/bookmark-cleaner` Angular + Material + Tailwind PWA frontend
+- `services/link-health-worker` Cloudflare Worker service for optional link health checks
+- `common` Rush shared configuration and scripts
 
-1. Ensure Node `>=20.14.0 <23.0.0` is active.
-2. Run `node common/scripts/install-run-rush.js update`.
-3. Run `node common/scripts/install-run-rush.js build`.
+## Prerequisites
 
-Useful commands:
-- `npm run dev:web`
-- `npm run dev:worker`
-- `npm run lint`
-- `npm run test`
-- `npm run typecheck`
+- Node `>=20.14.0 <23.0.0`
+- npm (used by Rush)
 
-## GitHub Pages Deploy
+## Quick Start
+
+1. Install dependencies:
+   - `node common/scripts/install-run-rush.js update`
+2. Build all projects:
+   - `node common/scripts/install-run-rush.js build`
+3. Run the web app locally:
+   - `npm run dev:web`
+
+## Common Commands
+
+- `npm run dev:web` Run Angular app
+- `npm run dev:worker` Run Cloudflare worker locally
+- `npm run build` Build all Rush projects
+- `npm run lint` Run lint checks
+- `npm run test` Run tests
+- `npm run typecheck` Run type checking
+
+## Deployment (GitHub Pages)
 
 - Workflow: `.github/workflows/pages-deploy.yml`
-- Deploy target: `gh-pages` branch from `apps/bookmark-cleaner/dist/angular-mat-tailwind-starter/browser`
-- Trigger: pushes to `main` that touch app/build files, or manual dispatch
+- Publishes the web app build to `gh-pages`
+- Supports custom domain through repository variable `PAGES_CNAME`
 
-Custom domain support:
-- Set repository variable `PAGES_CNAME` (for example `trove.dsteele.dev`)
-- The workflow passes this value as the deploy `cname`
-- In GitHub repo settings, set Pages source to `gh-pages` branch
-
-## Planning docs
+## Planning and Design Docs
 
 - `TECH_DESIGN.md`
 - `IMPLEMENTATION_PLAN.md`
 - `MVP_BACKLOG.md`
 - `WORKPLAN.md`
 - `NEXT_STEPS.md`
-
-## Source MVP reference
-
-- `Below is a full MVP tech design you coul.md`
