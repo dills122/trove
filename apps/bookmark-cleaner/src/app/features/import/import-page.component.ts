@@ -17,18 +17,18 @@ interface WarningGroup {
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-10">
+    <section class="mx-auto w-full max-w-6xl space-y-5 px-4 py-5 max-[375px]:space-y-4 max-[375px]:px-3.5 sm:space-y-8 sm:px-6 sm:py-10">
       <header class="grid gap-4 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
         <div class="space-y-3">
           <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 1 • Import</p>
-          <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Bring in your bookmark export</h1>
-          <p class="max-w-2xl text-base text-slate-300">
+          <h1 class="text-3xl font-semibold tracking-tight max-[375px]:text-[2rem] max-[375px]:leading-[1.1] sm:text-4xl">Bring in your bookmark export</h1>
+          <p class="max-w-2xl text-base text-slate-300 max-[375px]:text-[1.02rem] max-[375px]:leading-7">
             Start with a Chrome export HTML file. Trove reads it into a working snapshot so your
             original file and browser bookmarks remain untouched.
           </p>
         </div>
 
-        <aside class="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+        <aside class="rounded-2xl border border-white/10 bg-white/5 p-4 max-[375px]:p-3.5 text-sm text-slate-200">
           <p class="font-semibold">What happens next</p>
           <ol class="mt-2 space-y-1 text-slate-300">
             <li>1. Parse links and folders locally</li>
@@ -38,7 +38,7 @@ interface WarningGroup {
         </aside>
       </header>
 
-      <section class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/40 sm:p-6">
+      <section class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 max-[375px]:p-3.5 shadow-xl shadow-slate-950/40 sm:p-6">
         <label for="bookmark-file" class="mb-3 block text-sm font-medium text-slate-100">Bookmark HTML file</label>
         <input
           id="bookmark-file"
@@ -64,7 +64,7 @@ interface WarningGroup {
         {{ error() }}
       </div>
 
-      <section *ngIf="store.snapshot() as snapshot" class="space-y-6" aria-label="Import summary">
+      <section *ngIf="store.snapshot() as snapshot" class="space-y-5 max-[375px]:space-y-4 sm:space-y-6" aria-label="Import summary">
         <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
           <article class="metric-card">
             <p class="metric-label">Exported links</p>
@@ -84,7 +84,7 @@ interface WarningGroup {
           </article>
         </div>
 
-        <section *ngIf="warningGroups().length" class="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <section *ngIf="warningGroups().length" class="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-4 max-[375px]:p-3.5 sm:p-6">
           <header>
             <h2 class="text-xl font-semibold">Quality checks</h2>
             <p class="text-xs text-slate-400">Exported links include bookmarks from all folders, archived collections, and bookmarklets.</p>
@@ -99,14 +99,14 @@ interface WarningGroup {
                 {{ group.label }}
                 <span class="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">{{ group.count }}</span>
               </summary>
-              <ul class="mt-3 max-h-44 space-y-1 overflow-auto break-words text-xs text-slate-300">
+              <ul class="mt-3 space-y-1 break-words text-xs text-slate-300 lg:max-h-44 lg:overflow-auto">
                 <li *ngFor="let message of group.messages.slice(0, 20)">• {{ message }}</li>
               </ul>
             </details>
           </div>
         </section>
 
-        <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-5 sm:p-6">
+        <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-5 max-[375px]:p-4 sm:p-6">
           <h2 class="text-lg font-semibold">Ready to review</h2>
           <p class="mt-1 text-sm text-slate-300">
             Your source file is untouched. Continue to inspect quality and prepare cleanup actions.
