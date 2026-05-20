@@ -1,28 +1,61 @@
-import { DOCUMENT } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterOutlet } from '@angular/router';
-import { ExampleComponent } from './components/example/example.component';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
+import { WorkspaceStore } from './core/store/workspace.store';
+
+interface WorkflowStep {
+  id: number;
+  label: string;
+  path: string | null;
+}
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatSlideToggleModule, ExampleComponent],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('angular-mat-tailwind-starter');
-  private readonly document = inject(DOCUMENT);
+  private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly router = inject(Router);
 
-  protected scrollToExample(): void {
-    const target = this.document.getElementById('example');
-    const viewport = this.document.defaultView;
+  readonly steps: WorkflowStep[] = [
+    { id: 1, label: 'Import', path: '/import' },
+    { id: 2, label: 'Review', path: '/dashboard' },
+    { id: 3, label: 'Organize', path: '/organize' },
+    { id: 4, label: 'Export', path: null },
+  ];
 
-    if (!target || !viewport) {
+  readonly currentStep = signal(1);
+
+  public constructor() {
+    void this.workspaceStore.load();
+    this.updateCurrentStep(this.router.url);
+
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.updateCurrentStep(event.urlAfterRedirects));
+  }
+
+  isStepActive(stepId: number): boolean {
+    return this.currentStep() === stepId;
+  }
+
+  isStepComplete(stepId: number): boolean {
+    return this.currentStep() > stepId;
+  }
+
+  private updateCurrentStep(url: string): void {
+    if (url.startsWith('/organize')) {
+      this.currentStep.set(3);
       return;
     }
 
-    const top = target.getBoundingClientRect().top + viewport.scrollY - 12;
-    viewport.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+    if (url.startsWith('/dashboard')) {
+      this.currentStep.set(2);
+      return;
+    }
+
+    this.currentStep.set(1);
   }
 }
