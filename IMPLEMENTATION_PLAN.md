@@ -140,3 +140,13 @@ Sprint B:
 - finish Milestone 2
 - Milestone 3
 - start Milestone 4
+
+Sprint C:
+- PWA hardening implementation:
+  - manifest, icons, service worker wiring
+  - install prompt and update prompt UX
+  - offline state UX + cache strategy validation
+- architecture refactor pass:
+  - decompose oversized inline templates
+  - extract reusable workflow components/services
+  - reduce route component complexity and improve maintainability

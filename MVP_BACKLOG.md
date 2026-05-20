@@ -112,3 +112,41 @@ Acceptance criteria:
 Acceptance criteria:
 - new version prompt exists
 - stale app guidance visible to users
+
+## Epic H: Sprint PWA + Refactor
+
+### H1. Manifest + metadata baseline
+Acceptance criteria:
+- `manifest.webmanifest` exists with installable fields
+- `index.html` includes manifest + required PWA metadata
+- icon set includes 192/512 and maskable variant
+
+### H2. Service worker production wiring
+Acceptance criteria:
+- Angular SW enabled in production build
+- service worker is registered and active post-build
+- `ngsw-config.json` defines app-shell/asset cache groups
+
+### H3. Install + update lifecycle
+Acceptance criteria:
+- install prompt flow is exposed through UI
+- app update prompt appears when a new build is available
+- user can reload/apply update from prompt
+
+### H4. Offline experience baseline
+Acceptance criteria:
+- app shell loads when offline after first online visit
+- offline state indicator is visible and clear
+- local snapshot review flow remains usable offline
+
+### H5. Import page decomposition
+Acceptance criteria:
+- oversized inline import template moved to dedicated template/style files
+- first-run modal/export guide sections are split into reusable components where practical
+- behavior parity with pre-refactor flow is maintained
+
+### H6. Component/service complexity guardrails
+Acceptance criteria:
+- no high-traffic route component exceeds agreed size threshold
+- orchestration logic extracted to focused services
+- tests updated for extracted logic paths
