@@ -1,0 +1,116 @@
+import { TestBed } from '@angular/core/testing';
+import { SwUpdate, type VersionEvent } from '@angular/service-worker';
+import { Subject } from 'rxjs';
+import { PwaService } from './pwa.service';
+
+describe('PwaService', () => {
+  let versionEvents: Subject<VersionEvent>;
+  let swUpdateMock: { isEnabled: boolean; versionUpdates: Subject<VersionEvent>; activateUpdate: jest.Mock };
+
+  const setOnline = (online: boolean): void => {
+    Object.defineProperty(window.navigator, 'onLine', {
+      configurable: true,
+      value: online,
+    });
+  };
+
+  const dispatchBeforeInstallPrompt = (outcome: 'accepted' | 'dismissed' = 'dismissed'): void => {
+    const event = new Event('beforeinstallprompt') as Event & {
+      prompt: () => Promise<void>;
+      userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+    };
+    Object.assign(event, {
+      prompt: async () => undefined,
+      userChoice: Promise.resolve({ outcome, platform: 'web' }),
+    });
+
+    window.dispatchEvent(event);
+  };
+
+  const createService = (): PwaService => {
+    versionEvents = new Subject<VersionEvent>();
+    swUpdateMock = {
+      isEnabled: true,
+      versionUpdates: versionEvents,
+      activateUpdate: jest.fn().mockResolvedValue(undefined),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: SwUpdate, useValue: swUpdateMock }],
+    });
+
+    return TestBed.inject(PwaService);
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    localStorage.clear();
+    setOnline(true);
+
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: jest.fn().mockReturnValue({
+        matches: false,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+  });
+
+  it('exposes install support when browser emits beforeinstallprompt', () => {
+    const service = createService();
+    expect(service.installSupported()).toBe(false);
+
+    dispatchBeforeInstallPrompt();
+
+    expect(service.installSupported()).toBe(true);
+  });
+
+  it('persists install prompt dismissal', () => {
+    const service = createService();
+
+    dispatchBeforeInstallPrompt();
+    expect(service.installSupported()).toBe(true);
+
+    service.dismissInstallPrompt();
+
+    expect(service.installSupported()).toBe(false);
+    expect(localStorage.getItem('trove-pwa-install-dismissed')).toBe('1');
+  });
+
+  it('shows update banner on VERSION_READY unless dismissed for that hash', () => {
+    const service = createService();
+
+    versionEvents.next({
+      type: 'VERSION_READY',
+      currentVersion: { hash: 'old-hash', appData: {} },
+      latestVersion: { hash: 'new-hash', appData: {} },
+    });
+
+    expect(service.updateAvailable()).toBe(true);
+
+    service.dismissUpdateBanner();
+    expect(localStorage.getItem('trove-pwa-update-dismissed:new-hash')).toBe('1');
+
+    versionEvents.next({
+      type: 'VERSION_READY',
+      currentVersion: { hash: 'old2-hash', appData: {} },
+      latestVersion: { hash: 'new-hash', appData: {} },
+    });
+
+    expect(service.updateAvailable()).toBe(false);
+  });
+
+  it('tracks online/offline events', () => {
+    const service = createService();
+    expect(service.isOnline()).toBe(true);
+
+    setOnline(false);
+    window.dispatchEvent(new Event('offline'));
+    expect(service.isOnline()).toBe(false);
+
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+    expect(service.isOnline()).toBe(true);
+  });
+});

@@ -28,7 +28,11 @@ export class PwaService {
     }
 
     this.installDismissed.set(localStorage.getItem(PwaService.INSTALL_DISMISSED_KEY) === '1');
-    this.installed.set(window.matchMedia('(display-mode: standalone)').matches);
+    const standaloneMode =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(display-mode: standalone)').matches
+        : false;
+    this.installed.set(standaloneMode);
 
     this.isOnline.set(navigator.onLine);
     window.addEventListener('online', () => this.isOnline.set(true));
