@@ -15,6 +15,9 @@ export interface BookmarkLink {
   url: string;
   normalizedUrl: string;
   domain: string;
+  host: string;
+  registrableDomain: string;
+  scheme: string;
   path: string[];
   tags: string[];
 }
@@ -24,12 +27,21 @@ export interface ParseWarning {
   message: string;
 }
 
+export interface CountSummary {
+  key: string;
+  count: number;
+}
+
 export interface BookmarkAnalysis {
   totalBookmarks: number;
   totalFolders: number;
   uniqueUrls: number;
   malformedEntries: number;
   warningCount: number;
+  bookmarkletCount: number;
+  schemeBreakdown: CountSummary[];
+  topHosts: CountSummary[];
+  topRegistrableDomains: CountSummary[];
 }
 
 export interface BookmarkWorkspaceSnapshot {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 
@@ -8,74 +8,121 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto w-full max-w-5xl space-y-6 px-6 py-8">
-      <header class="space-y-2">
-        <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 2</p>
-        <h1 class="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p class="max-w-3xl text-sm text-slate-300">
-          Review your imported workspace metrics before moving into duplicate cleanup and
-          organization.
+    <section class="mx-auto w-full max-w-6xl space-y-8 px-6 py-10">
+      <header class="space-y-3">
+        <p class="text-xs uppercase tracking-[0.22em] text-cyan-300">Step 2 • Review</p>
+        <h1 class="text-4xl font-semibold tracking-tight">See what your data is telling you</h1>
+        <p class="max-w-3xl text-base text-slate-300">
+          Use this snapshot to decide whether to move into duplicate cleanup and organization.
         </p>
       </header>
 
       <section
         *ngIf="!store.snapshot()"
-        class="rounded-2xl border border-slate-700 bg-slate-900/60 p-5 text-sm text-slate-300"
+        class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300"
       >
         <p>No workspace loaded yet.</p>
-        <a routerLink="/import" class="mt-3 inline-block rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950">
+        <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
           Import bookmarks
         </a>
       </section>
 
       <ng-container *ngIf="store.snapshot() as snapshot">
-        <section class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Key metrics">
-          <article class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Bookmarks</p>
-            <p class="mt-1 text-2xl font-semibold">{{ snapshot.analysis.totalBookmarks }}</p>
+        <section class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Key metrics">
+          <article class="metric-card">
+            <p class="metric-label">Exported links</p>
+            <p class="metric-value">{{ snapshot.analysis.totalBookmarks }}</p>
           </article>
-          <article class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Folders</p>
-            <p class="mt-1 text-2xl font-semibold">{{ snapshot.analysis.totalFolders }}</p>
+          <article class="metric-card">
+            <p class="metric-label">Folders</p>
+            <p class="metric-value">{{ snapshot.analysis.totalFolders }}</p>
           </article>
-          <article class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Unique URLs</p>
-            <p class="mt-1 text-2xl font-semibold">{{ snapshot.analysis.uniqueUrls }}</p>
+          <article class="metric-card">
+            <p class="metric-label">Unique links</p>
+            <p class="metric-value">{{ snapshot.analysis.uniqueUrls }}</p>
           </article>
-          <article class="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-            <p class="text-xs uppercase tracking-wide text-slate-400">Warnings</p>
-            <p class="mt-1 text-2xl font-semibold">{{ snapshot.analysis.warningCount }}</p>
+          <article class="metric-card">
+            <p class="metric-label">Bookmarklets</p>
+            <p class="metric-value">{{ snapshot.analysis.bookmarkletCount }}</p>
           </article>
         </section>
 
-        <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <article class="rounded-2xl border border-slate-700 bg-slate-900/60 p-5">
-            <h2 class="text-lg font-semibold">Data quality</h2>
-            <ul class="mt-3 space-y-2 text-sm text-slate-200">
+        <section class="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-6 space-y-4">
+            <h2 class="text-xl font-semibold">Quality insight</h2>
+            <ul class="space-y-2 text-sm text-slate-200">
               <li class="flex items-center justify-between">
                 <span>Malformed entries</span>
                 <strong>{{ snapshot.analysis.malformedEntries }}</strong>
               </li>
               <li class="flex items-center justify-between">
-                <span>Warnings</span>
+                <span>Warning count</span>
                 <strong>{{ snapshot.analysis.warningCount }}</strong>
               </li>
+              <li class="flex items-center justify-between">
+                <span>Bookmarklets</span>
+                <strong>{{ snapshot.analysis.bookmarkletCount }}</strong>
+              </li>
+              <li class="flex items-center justify-between">
+                <span>Uniqueness ratio</span>
+                <strong>{{ uniqueRatio() }}%</strong>
+              </li>
             </ul>
-            <p class="mt-4 text-xs text-slate-400">
-              Warnings are non-destructive and can be reviewed before any export action.
-            </p>
+            <p class="text-sm text-slate-300">{{ guidance() }}</p>
           </article>
 
-          <article class="rounded-2xl border border-slate-700 bg-slate-900/60 p-5">
-            <h2 class="text-lg font-semibold">Next actions</h2>
-            <ol class="mt-3 space-y-2 text-sm text-slate-200">
-              <li>1. Review warnings for malformed entries.</li>
-              <li>2. Start duplicate grouping and resolution.</li>
-              <li>3. Build and preview organization proposals.</li>
+          <article class="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-4">
+            <h2 class="text-xl font-semibold">What to do next</h2>
+            <ol class="space-y-2 text-sm text-slate-200">
+              <li>1. Review warnings from import.</li>
+              <li>2. Start duplicate detection and triage.</li>
+              <li>3. Build a proposed folder organization.</li>
             </ol>
-            <a routerLink="/import" class="mt-4 inline-block text-sm text-cyan-300 underline">
-              Re-import a different file
-            </a>
+            <div class="flex flex-wrap gap-3 pt-2">
+              <a routerLink="/import" class="rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-200">
+                Re-import file
+              </a>
+              <button
+                type="button"
+                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950"
+                disabled
+                aria-disabled="true"
+              >
+                Duplicates (coming next)
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid gap-4 lg:grid-cols-3">
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+            <h3 class="text-lg font-semibold">Scheme mix</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-200">
+              <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.schemeBreakdown">
+                <span>{{ item.key }}</span>
+                <strong>{{ item.count }}</strong>
+              </li>
+            </ul>
+          </article>
+
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+            <h3 class="text-lg font-semibold">Top hosts (include subdomains)</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-200 max-h-64 overflow-auto">
+              <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.topHosts">
+                <span class="truncate max-w-[16rem]" [title]="item.key">{{ item.key }}</span>
+                <strong>{{ item.count }}</strong>
+              </li>
+            </ul>
+          </article>
+
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-5">
+            <h3 class="text-lg font-semibold">Top shared domains (exclude subdomains)</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-200 max-h-64 overflow-auto">
+              <li class="flex items-center justify-between" *ngFor="let item of snapshot.analysis.topRegistrableDomains">
+                <span class="truncate max-w-[16rem]" [title]="item.key">{{ item.key }}</span>
+                <strong>{{ item.count }}</strong>
+              </li>
+            </ul>
           </article>
         </section>
       </ng-container>
@@ -84,4 +131,27 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
 })
 export class DashboardPageComponent {
   readonly store = inject(WorkspaceStore);
+
+  readonly uniqueRatio = computed(() => {
+    const analysis = this.store.snapshot()?.analysis;
+    if (!analysis || analysis.totalBookmarks === 0) {
+      return 0;
+    }
+
+    return Math.round((analysis.uniqueUrls / analysis.totalBookmarks) * 100);
+  });
+
+  readonly guidance = computed(() => {
+    const ratio = this.uniqueRatio();
+
+    if (ratio >= 85) {
+      return 'Your bookmarks look relatively distinct. Focus on warnings first, then organization.';
+    }
+
+    if (ratio >= 60) {
+      return 'There is moderate overlap. Duplicate review will likely produce useful cleanup wins.';
+    }
+
+    return 'High overlap detected. Prioritize duplicate review before folder organization.';
+  });
 }

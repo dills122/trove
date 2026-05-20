@@ -2,13 +2,15 @@ import {
   type BookmarkFolder,
   type BookmarkLink,
   type BookmarkWorkspaceSnapshot,
+  type CountSummary,
   type ParseWarning,
 } from '../models/bookmark.models';
+import { getHost, getRegistrableDomain, getScheme } from '../utils/domain-analysis';
 import { deriveTitleFromUrl } from '../utils/title-derive';
 import { getDomain, normalizeUrl } from '../utils/url-normalization';
 
-const FOLDER_REGEX = /<H3[^>]*>(.*?)<\/H3>/gi;
-const LINK_REGEX = /<A\s+[^>]*HREF="([^"]+)"[^>]*>(.*?)<\/A>/gi;
+const TOKEN_REGEX = /<DT><H3\b[^>]*>([\s\S]*?)<\/H3>|<DT><A\b([^>]*)>([\s\S]*?)<\/A>|<DL><p>|<\/DL>/gi;
+const HREF_ATTR_REGEX = /HREF="([^"]*)"/i;
 
 const stripHtml = (input: string): string => input.replace(/<[^>]+>/g, '').trim();
 
@@ -20,57 +22,117 @@ const createRootFolder = (): BookmarkFolder => ({
   children: [],
 });
 
+const createFolder = (title: string, path: string[], index: number): BookmarkFolder => ({
+  id: `folder-${index}`,
+  type: 'folder',
+  title,
+  path,
+  children: [],
+});
+
+const summarizeTop = (map: Map<string, number>, limit = 10): CountSummary[] =>
+  [...map.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([key, count]) => ({ key, count }));
+
 export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
   const warnings: ParseWarning[] = [];
   const bookmarks: BookmarkLink[] = [];
   const root = createRootFolder();
+  const folderStack: BookmarkFolder[] = [root];
+
+  const schemeCounts = new Map<string, number>();
+  const hostCounts = new Map<string, number>();
+  const registrableDomainCounts = new Map<string, number>();
 
   let folderCount = 0;
-  let folderMatch: RegExpExecArray | null;
-  while ((folderMatch = FOLDER_REGEX.exec(html)) !== null) {
-    folderCount += 1;
-    const title = stripHtml(folderMatch[1]) || `Folder ${folderCount}`;
-    root.children.push({
-      id: `folder-${folderCount}`,
-      type: 'folder',
-      title,
-      path: [title],
-      children: [],
-    });
-  }
-
   let linkCount = 0;
   let malformedEntries = 0;
-  let linkMatch: RegExpExecArray | null;
-  while ((linkMatch = LINK_REGEX.exec(html)) !== null) {
-    linkCount += 1;
-    const url = linkMatch[1]?.trim();
-    const rawTitle = stripHtml(linkMatch[2] ?? '');
+  let bookmarkletCount = 0;
 
-    if (!url) {
-      malformedEntries += 1;
-      warnings.push({ code: 'MISSING_URL', message: `Entry #${linkCount} missing URL` });
+  let pendingFolder: BookmarkFolder | null = null;
+  let token: RegExpExecArray | null;
+
+  while ((token = TOKEN_REGEX.exec(html)) !== null) {
+    const [fullMatch, folderTitleMatch, anchorAttrsMatch, anchorTextMatch] = token;
+
+    if (fullMatch === '<DL><p>') {
+      if (pendingFolder) {
+        folderStack.push(pendingFolder);
+        pendingFolder = null;
+      }
       continue;
     }
 
-    const title = rawTitle || deriveTitleFromUrl(url);
-    if (!rawTitle) {
-      warnings.push({ code: 'MISSING_TITLE', message: `Derived title for ${url}` });
+    if (fullMatch === '</DL>') {
+      if (folderStack.length > 1) {
+        folderStack.pop();
+      }
+      continue;
     }
 
-    const bookmark: BookmarkLink = {
-      id: `link-${linkCount}`,
-      type: 'link',
-      title,
-      url,
-      normalizedUrl: normalizeUrl(url),
-      domain: getDomain(url),
-      path: [],
-      tags: [],
-    };
+    if (typeof folderTitleMatch === 'string') {
+      folderCount += 1;
+      const title = stripHtml(folderTitleMatch) || `Folder ${folderCount}`;
+      const parent = folderStack[folderStack.length - 1];
+      const folder = createFolder(title, [...parent.path, title], folderCount);
+      parent.children.push(folder);
+      pendingFolder = folder;
+      continue;
+    }
 
-    bookmarks.push(bookmark);
-    root.children.push(bookmark);
+    if (typeof anchorAttrsMatch === 'string') {
+      linkCount += 1;
+
+      const hrefMatch = HREF_ATTR_REGEX.exec(anchorAttrsMatch);
+      const url = hrefMatch?.[1]?.trim();
+      const rawTitle = stripHtml(anchorTextMatch ?? '');
+
+      if (!url) {
+        malformedEntries += 1;
+        warnings.push({ code: 'MISSING_URL', message: `Entry #${linkCount} missing URL` });
+        continue;
+      }
+
+      const title = rawTitle || deriveTitleFromUrl(url);
+      if (!rawTitle) {
+        warnings.push({ code: 'MISSING_TITLE', message: `Derived title for ${url}` });
+      }
+
+      const scheme = getScheme(url);
+      const host = getHost(url);
+      const registrableDomain = getRegistrableDomain(url);
+
+      if (scheme === 'javascript') {
+        bookmarkletCount += 1;
+      }
+
+      schemeCounts.set(scheme, (schemeCounts.get(scheme) ?? 0) + 1);
+      hostCounts.set(host, (hostCounts.get(host) ?? 0) + 1);
+      registrableDomainCounts.set(
+        registrableDomain,
+        (registrableDomainCounts.get(registrableDomain) ?? 0) + 1,
+      );
+
+      const parent = folderStack[folderStack.length - 1];
+      const bookmark: BookmarkLink = {
+        id: `link-${linkCount}`,
+        type: 'link',
+        title,
+        url,
+        normalizedUrl: normalizeUrl(url),
+        domain: getDomain(url),
+        host,
+        registrableDomain,
+        scheme,
+        path: [...parent.path],
+        tags: [],
+      };
+
+      bookmarks.push(bookmark);
+      parent.children.push(bookmark);
+    }
   }
 
   if (bookmarks.length === 0) {
@@ -90,6 +152,10 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
       uniqueUrls,
       malformedEntries,
       warningCount: warnings.length,
+      bookmarkletCount,
+      schemeBreakdown: summarizeTop(schemeCounts, 8),
+      topHosts: summarizeTop(hostCounts, 10),
+      topRegistrableDomains: summarizeTop(registrableDomainCounts, 10),
     },
   };
 };
