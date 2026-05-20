@@ -2,10 +2,10 @@
 
 ## Immediate
 
-1. Scaffold Angular feature folders and routes from MVP spec.
-2. Add shared bookmark models and worker request/response contracts.
-3. Implement import page flow (upload -> worker parse -> store snapshot).
-4. Add dashboard placeholder wired to analysis state.
+1. Execute `SPRINT_PWA_REFACTOR_PLAN.md` as active sprint.
+2. Implement PWA foundation: manifest, service worker wiring, install/update UX.
+3. Add offline-state UX and validate offline review workflow.
+4. Refactor oversized route components/templates, starting with import flow decomposition.
 
 ## Backend Follow-Up
 
@@ -15,5 +15,5 @@
 
 ## Tooling Follow-Up
 
-1. Add repo-level lint/format command mapping in Rush command-line config.
-2. Add CI checks for `rush build` and test targets.
+1. Add Lighthouse/PWA checks to CI for installability and offline baseline validation.
+2. Add component/template complexity guardrails to lint or PR checklist.

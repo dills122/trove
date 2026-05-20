@@ -258,6 +258,28 @@ These require revisit/open telemetry and timeline storage (not in current MVP mo
 - intent vs action completion metrics
 - rediscovery “on this day” feed
 
+## 16. Sprint: PWA Hardening + Refactor
+
+This sprint establishes production-ready PWA foundations and reduces architecture risk from oversized components.
+
+### 16.1 PWA Outcomes
+- installable app manifest and icon model
+- production Angular service worker enablement
+- app-shell and asset caching strategy
+- offline-state UX messaging and behavior expectations
+- update prompt flow for newly deployed versions
+
+### 16.2 Refactor Outcomes
+- break large inline templates into dedicated component templates/styles
+- extract reusable workflow UI blocks into focused components
+- move orchestration logic out of page components into dedicated services
+- enforce component/template size guardrails to prevent regressions
+
+### 16.3 Constraints
+- preserve local-first behavior and non-destructive workflow semantics
+- avoid behavioral regressions during decomposition
+- keep cloud-assisted paths strictly opt-in
+
 ### 15.4 Post-MVP Advanced (ML/Graph Investment)
 
 - semantic clustering and “era” detection
