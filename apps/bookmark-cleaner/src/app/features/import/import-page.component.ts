@@ -3,7 +3,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { ParseWarning } from '../../core/models/bookmark.models';
 import { BookmarkWorkerService } from '../../core/services/bookmark-worker.service';
+import { UiPreferencesStore } from '../../core/store/ui-preferences.store';
 import { WorkspaceStore } from '../../core/store/workspace.store';
+import { getBookmarkManagerShortcut } from '../../core/utils/platform-shortcuts';
 
 interface WarningGroup {
   key: ParseWarning['code'];
@@ -60,52 +62,88 @@ interface WarningGroup {
             type="button"
             class="inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-xs font-medium"
             [ngClass]="
-              selectedHelpBrowser() === 'chrome'
+              uiPreferences.browser() === 'chrome'
                 ? 'bg-white text-slate-950'
                 : 'border border-white/20 text-slate-300'
             "
-            (click)="selectedHelpBrowser.set('chrome')"
+            (click)="setGuideBrowser('chrome')"
           >
             Chrome
           </button>
           <button
             type="button"
-            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
-            (click)="selectedHelpBrowser.set('edge')"
+            class="inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-xs font-medium"
+            [ngClass]="
+              uiPreferences.browser() === 'edge'
+                ? 'bg-white text-slate-950'
+                : 'border border-white/20 text-slate-300'
+            "
+            (click)="setGuideBrowser('edge')"
           >
-            Edge (soon)
+            Edge
           </button>
           <button
             type="button"
-            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
-            (click)="selectedHelpBrowser.set('firefox')"
+            class="inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-xs font-medium"
+            [ngClass]="
+              uiPreferences.browser() === 'firefox'
+                ? 'bg-white text-slate-950'
+                : 'border border-white/20 text-slate-300'
+            "
+            (click)="setGuideBrowser('firefox')"
           >
-            Firefox (soon)
+            Firefox
           </button>
           <button
             type="button"
-            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
-            (click)="selectedHelpBrowser.set('safari')"
+            class="inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-xs font-medium"
+            [ngClass]="
+              uiPreferences.browser() === 'safari'
+                ? 'bg-white text-slate-950'
+                : 'border border-white/20 text-slate-300'
+            "
+            (click)="setGuideBrowser('safari')"
           >
-            Safari (soon)
+            Safari
           </button>
         </div>
 
-        <div *ngIf="selectedHelpBrowser() === 'chrome'" class="mt-4 space-y-4">
+        <div *ngIf="uiPreferences.browser() === 'chrome'" class="mt-4 space-y-4">
           <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
             <p class="text-xs uppercase tracking-[0.2em] text-cyan-300">Visual Walkthrough</p>
             <h3 class="mt-2 text-base font-semibold text-slate-100">Export from Chrome in 3 steps</h3>
 
             <div class="mt-4 grid gap-3 sm:grid-cols-3">
               <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <img
+                  src="infographics/chrome-step-1.svg"
+                  alt="Chrome Bookmarks Manager view with shortcut highlighted"
+                  class="mb-3 h-auto w-full rounded-lg border border-white/10"
+                />
                 <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
                   1
                 </div>
                 <p class="text-sm font-medium text-slate-100">Open Bookmarks Manager</p>
-                <p class="mt-1 text-xs text-slate-300">Press <strong>Ctrl/Cmd + Shift + O</strong>.</p>
+                <p class="mt-1 text-xs text-slate-300">
+                  Press
+                  <span class="ml-1 inline-flex items-center gap-1 align-middle">
+                    <span
+                      *ngFor="let key of bookmarkManagerShortcut().keycaps"
+                      class="inline-flex min-w-7 items-center justify-center rounded-md border border-white/20 bg-slate-800 px-1.5 py-0.5 text-[11px] font-semibold text-slate-100"
+                    >
+                      {{ key }}
+                    </span>
+                  </span>
+                  <span class="ml-1 text-slate-400">({{ bookmarkManagerShortcut().comboText }})</span>
+                </p>
               </article>
 
               <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <img
+                  src="infographics/chrome-step-2.svg"
+                  alt="Chrome bookmarks interface showing three-dot menu area"
+                  class="mb-3 h-auto w-full rounded-lg border border-white/10"
+                />
                 <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
                   2
                 </div>
@@ -114,6 +152,11 @@ interface WarningGroup {
               </article>
 
               <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <img
+                  src="infographics/chrome-step-3.svg"
+                  alt="Exported bookmark HTML file and upload flow"
+                  class="mb-3 h-auto w-full rounded-lg border border-white/10"
+                />
                 <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
                   3
                 </div>
@@ -135,7 +178,7 @@ interface WarningGroup {
           </div>
         </div>
 
-        <div *ngIf="selectedHelpBrowser() !== 'chrome'" class="mt-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
+        <div *ngIf="uiPreferences.browser() !== 'chrome'" class="mt-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
           This guide is coming soon. For now, export from Chrome Bookmarks Manager to HTML and import that file here.
         </div>
       </section>
@@ -249,12 +292,16 @@ interface WarningGroup {
 })
 export class ImportPageComponent {
   readonly store = inject(WorkspaceStore);
+  readonly uiPreferences = inject(UiPreferencesStore);
   private readonly worker = inject(BookmarkWorkerService);
   readonly error = signal<string | null>(null);
   readonly showSnapshotSummary = signal(false);
   readonly showHelp = signal(false);
-  readonly selectedHelpBrowser = signal<'chrome' | 'edge' | 'firefox' | 'safari'>('chrome');
   readonly hasPersistedSnapshot = computed(() => this.store.snapshot() !== null);
+  readonly bookmarkManagerShortcut = computed(() => {
+    const os = this.uiPreferences.os();
+    return getBookmarkManagerShortcut(os === 'mac' ? 'mac' : os === 'windows' ? 'windows' : 'linux');
+  });
 
   readonly warningGroups = computed<WarningGroup[]>(() => {
     const warnings = this.store.snapshot()?.warnings ?? [];
@@ -314,6 +361,12 @@ export class ImportPageComponent {
         return 'Malformed entry';
       default:
         return 'Warnings';
+    }
+  }
+
+  setGuideBrowser(browser: string): void {
+    if (browser === 'chrome' || browser === 'edge' || browser === 'firefox' || browser === 'safari') {
+      this.uiPreferences.setBrowser(browser);
     }
   }
 }
