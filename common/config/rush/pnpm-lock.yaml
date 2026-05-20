@@ -37,6 +37,9 @@ importers:
       '@angular/router':
         specifier: ^20.1.0
         version: 20.3.21(@angular/common@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(rxjs@7.8.2)
+      '@angular/service-worker':
+        specifier: ^20.1.0
+        version: 20.3.21(@angular/core@20.3.21)(rxjs@7.8.2)
       dexie:
         specifier: ^4.0.11
         version: 4.4.2
@@ -64,7 +67,7 @@ importers:
         version: 20.3.0(eslint@9.39.4)(typescript@5.8.3)
       '@angular/build':
         specifier: ^20.1.1
-        version: 20.3.26(@angular/compiler-cli@20.3.21)(@angular/compiler@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(@types/node@22.19.19)(postcss@8.5.14)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.8.3)
+        version: 20.3.26(@angular/compiler-cli@20.3.21)(@angular/compiler@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(@angular/service-worker@20.3.21)(@types/node@22.19.19)(postcss@8.5.14)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.8.3)
       '@angular/cli':
         specifier: ^20.1.1
         version: 20.3.26(@types/node@22.19.19)
@@ -443,7 +446,7 @@ packages:
       typescript: 5.8.3
     dev: true
 
-  /@angular/build@20.3.26(@angular/compiler-cli@20.3.21)(@angular/compiler@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(@types/node@22.19.19)(postcss@8.5.14)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.8.3):
+  /@angular/build@20.3.26(@angular/compiler-cli@20.3.21)(@angular/compiler@20.3.21)(@angular/core@20.3.21)(@angular/platform-browser@20.3.21)(@angular/service-worker@20.3.21)(@types/node@22.19.19)(postcss@8.5.14)(tailwindcss@4.3.0)(tslib@2.8.1)(typescript@5.8.3):
     resolution: {integrity: sha512-WXpntiPE3YWprEvam7S2KJd8u/FwAYB5aZqeVniOoa4aru6a33waN8f1oWTM0DeNsvvjl3qI7UpEjbyjZ7QYmA==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
     peerDependencies:
@@ -495,6 +498,7 @@ packages:
       '@angular/compiler-cli': 20.3.21(@angular/compiler@20.3.21)(typescript@5.8.3)
       '@angular/core': 20.3.21(@angular/compiler@20.3.21)(rxjs@7.8.2)(zone.js@0.15.1)
       '@angular/platform-browser': 20.3.21(@angular/common@20.3.21)(@angular/core@20.3.21)
+      '@angular/service-worker': 20.3.21(@angular/core@20.3.21)(rxjs@7.8.2)
       '@babel/core': 7.28.3
       '@babel/helper-annotate-as-pure': 7.27.3
       '@babel/helper-split-export-declaration': 7.24.7
@@ -723,6 +727,18 @@ packages:
       rxjs: 7.8.2
       tslib: 2.8.1
     dev: false
+
+  /@angular/service-worker@20.3.21(@angular/core@20.3.21)(rxjs@7.8.2):
+    resolution: {integrity: sha512-IeW2C/s2EYa92RuTUUvItnCHlyEjaQzHEECoSHGGeAgIvbt9XVqG6bUg2NV2VCiHh5mnXzEw04z0nTIBsYEAJg==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
+    hasBin: true
+    peerDependencies:
+      '@angular/core': 20.3.21
+      rxjs: ^6.5.3 || ^7.4.0
+    dependencies:
+      '@angular/core': 20.3.21(@angular/compiler@20.3.21)(rxjs@7.8.2)(zone.js@0.15.1)
+      rxjs: 7.8.2
+      tslib: 2.8.1
 
   /@asamuzakjp/css-color@3.2.0:
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}

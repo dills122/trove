@@ -8,6 +8,24 @@
 
   <header class="sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
     <nav class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 sm:py-4" aria-label="Primary">
+      @if (!pwa.isOnline()) {
+        <div class="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+          Offline mode: local review features remain available.
+        </div>
+      }
+      @if (pwa.updateAvailable()) {
+        <div class="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">
+          <span>Update available.</span>
+          <div class="flex items-center gap-2">
+            <button type="button" class="rounded-md border border-white/20 px-2 py-1 text-[11px]" (click)="pwa.dismissUpdateBanner()">
+              Later
+            </button>
+            <button type="button" class="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-slate-950" (click)="applyUpdate()">
+              Reload
+            </button>
+          </div>
+        </div>
+      }
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0 flex items-center gap-3">
           <img
@@ -40,6 +58,16 @@
               <p class="mt-1 text-xs text-slate-400">Use settings to change</p>
             </div>
           </div>
+          @if (pwa.installSupported()) {
+            <button
+              type="button"
+              class="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 text-xs font-medium text-emerald-100 hover:bg-emerald-400/20"
+              (click)="installApp()"
+              aria-label="Install app"
+            >
+              Install
+            </button>
+          }
           <button
             type="button"
             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 opacity-60"
