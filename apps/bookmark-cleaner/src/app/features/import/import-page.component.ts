@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import type { ParseWarning } from '../../core/models/bookmark.models';
 import { BookmarkWorkerService } from '../../core/services/bookmark-worker.service';
 import { UiPreferencesStore } from '../../core/store/ui-preferences.store';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 import { getBookmarkManagerShortcut } from '../../core/utils/platform-shortcuts';
+import { ImportExportGuideComponent } from './components/import-export-guide.component';
+import { ImportIntroModalComponent } from './components/import-intro-modal.component';
+import { ImportSummaryComponent } from './components/import-summary.component';
+import type { ImportWarningGroupView } from './components/import-warning-groups.component';
 
-interface WarningGroup {
+interface WarningGroup extends ImportWarningGroupView {
   key: ParseWarning['code'];
-  label: string;
-  count: number;
-  messages: string[];
 }
 
 @Component({
   selector: 'app-import-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, ImportIntroModalComponent, ImportExportGuideComponent, ImportSummaryComponent],
   templateUrl: './import-page.component.html',
   styleUrl: './import-page.component.scss',
 })

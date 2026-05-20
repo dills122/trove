@@ -1,0 +1,35 @@
+<section class="space-y-5 max-[375px]:space-y-4 sm:space-y-6" aria-label="Import summary">
+  <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+    <article class="metric-card">
+      <p class="metric-label">Exported links</p>
+      <p class="metric-value">{{ snapshot().analysis.totalBookmarks }}</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Folders</p>
+      <p class="metric-value">{{ snapshot().analysis.totalFolders }}</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Unique links</p>
+      <p class="metric-value">{{ snapshot().analysis.uniqueUrls }}</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Bookmarklets</p>
+      <p class="metric-value">{{ snapshot().analysis.bookmarkletCount }}</p>
+    </article>
+  </div>
+
+  <app-import-warning-groups [groups]="warningGroups()" />
+
+  <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-5 max-[375px]:p-4 sm:p-6">
+    <h2 class="text-lg font-semibold">Ready to review</h2>
+    <p class="mt-1 text-sm text-slate-300">
+      Your source file is untouched. Continue to inspect quality and prepare cleanup actions.
+    </p>
+    <a
+      routerLink="/dashboard"
+      class="mt-4 inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
+    >
+      Continue to review
+    </a>
+  </section>
+</section>
