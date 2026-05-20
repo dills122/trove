@@ -20,6 +20,17 @@ Useful commands:
 - `npm run test`
 - `npm run typecheck`
 
+## GitHub Pages Deploy
+
+- Workflow: `.github/workflows/pages-deploy.yml`
+- Deploy target: `gh-pages` branch from `apps/bookmark-cleaner/dist/angular-mat-tailwind-starter/browser`
+- Trigger: pushes to `main` that touch app/build files, or manual dispatch
+
+Custom domain support:
+- Set repository variable `PAGES_CNAME` (for example `trove.dsteele.dev`)
+- The workflow passes this value as the deploy `cname`
+- In GitHub repo settings, set Pages source to `gh-pages` branch
+
 ## Planning docs
 
 - `TECH_DESIGN.md`
