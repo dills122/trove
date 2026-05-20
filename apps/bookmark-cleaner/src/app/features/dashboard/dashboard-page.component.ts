@@ -18,17 +18,16 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
         </p>
       </header>
 
-      <section
-        *ngIf="!store.snapshot()"
-        class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300"
-      >
-        <p>No workspace loaded yet.</p>
-        <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
-          Import bookmarks
-        </a>
-      </section>
+      @if (!store.snapshot()) {
+        <section class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
+          <p>No workspace loaded yet.</p>
+          <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
+            Import bookmarks
+          </a>
+        </section>
+      }
 
-      <ng-container *ngIf="store.snapshot() as snapshot">
+      @if (store.snapshot(); as snapshot) {
         <section class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4" aria-label="Key metrics">
           <article class="metric-card">
             <p class="metric-label">Exported links</p>
@@ -156,49 +155,57 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
             </ul>
             <p class="mt-3 text-xs text-slate-400">
               Protocol mix:
-              <span *ngFor="let item of protocolChips(); let last = last">
-                {{ item.key }} {{ item.count }}<span *ngIf="!last">, </span>
-              </span>
+              @for (item of protocolChips(); track item.key; let last = $last) {
+                <span>
+                  {{ item.key }} {{ item.count }}@if (!last) {<span>, </span>}
+                </span>
+              }
             </p>
           </article>
 
           <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-5">
             <h3 class="text-lg font-semibold">Top hosts (include subdomains)</h3>
             <ul class="mt-3 space-y-2 text-sm text-slate-200 lg:max-h-64 lg:overflow-auto">
-              <li class="flex items-center justify-between" *ngFor="let item of visibleHosts()">
-                <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
-                <strong class="shrink-0">{{ item.count }}</strong>
-              </li>
+              @for (item of visibleHosts(); track item.key) {
+                <li class="flex items-center justify-between">
+                  <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
+                  <strong class="shrink-0">{{ item.count }}</strong>
+                </li>
+              }
             </ul>
-            <button
-              *ngIf="hasMoreHosts()"
-              type="button"
-              class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5 lg:hidden"
-              (click)="showAllHosts.set(!showAllHosts())"
-            >
-              {{ showAllHosts() ? 'Show less' : 'Show more' }}
-            </button>
+            @if (hasMoreHosts()) {
+              <button
+                type="button"
+                class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5 lg:hidden"
+                (click)="showAllHosts.set(!showAllHosts())"
+              >
+                {{ showAllHosts() ? 'Show less' : 'Show more' }}
+              </button>
+            }
           </article>
 
           <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-5">
             <h3 class="text-lg font-semibold">Top shared domains (exclude subdomains)</h3>
             <ul class="mt-3 space-y-2 text-sm text-slate-200 lg:max-h-64 lg:overflow-auto">
-              <li class="flex items-center justify-between" *ngFor="let item of visibleDomains()">
-                <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
-                <strong class="shrink-0">{{ item.count }}</strong>
-              </li>
+              @for (item of visibleDomains(); track item.key) {
+                <li class="flex items-center justify-between">
+                  <span class="mr-2 min-w-0 truncate" [title]="item.key">{{ item.key }}</span>
+                  <strong class="shrink-0">{{ item.count }}</strong>
+                </li>
+              }
             </ul>
-            <button
-              *ngIf="hasMoreDomains()"
-              type="button"
-              class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5 lg:hidden"
-              (click)="showAllDomains.set(!showAllDomains())"
-            >
-              {{ showAllDomains() ? 'Show less' : 'Show more' }}
-            </button>
+            @if (hasMoreDomains()) {
+              <button
+                type="button"
+                class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5 lg:hidden"
+                (click)="showAllDomains.set(!showAllDomains())"
+              >
+                {{ showAllDomains() ? 'Show less' : 'Show more' }}
+              </button>
+            }
           </article>
         </section>
-      </ng-container>
+      }
     </section>
   `,
 })

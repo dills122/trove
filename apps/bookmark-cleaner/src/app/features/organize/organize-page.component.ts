@@ -20,14 +20,16 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
         </p>
       </header>
 
-      <section *ngIf="!store.snapshot()" class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
-        <p>No workspace loaded yet.</p>
-        <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
-          Import bookmarks
-        </a>
-      </section>
+      @if (!store.snapshot()) {
+        <section class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
+          <p>No workspace loaded yet.</p>
+          <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
+            Import bookmarks
+          </a>
+        </section>
+      }
 
-      <ng-container *ngIf="store.snapshot()">
+      @if (store.snapshot()) {
         <section class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4" aria-label="Organize metrics">
           <article class="metric-card">
             <p class="metric-label">Duplicate groups</p>
@@ -55,26 +57,29 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
             </p>
           </header>
 
-          <div *ngIf="duplicateGroups().length === 0" class="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
-            No duplicate groups detected from current heuristics.
-          </div>
+          @if (duplicateGroups().length === 0) {
+            <div class="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+              No duplicate groups detected from current heuristics.
+            </div>
+          }
 
-          <div class="space-y-3" *ngIf="duplicateGroups().length > 0">
-            <article
-              *ngFor="let group of duplicateGroups().slice(0, 12)"
-              class="rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:p-4"
-            >
-              <p class="text-sm font-semibold text-slate-100">
-                {{ group.reason === 'NORMALIZED_URL' ? 'Exact URL match' : 'Host + title match' }}
-                <span class="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">{{ group.items.length }} links</span>
-              </p>
-              <ul class="mt-2 space-y-1 text-xs text-slate-300">
-                <li *ngFor="let item of group.items.slice(0, 4)">
-                  {{ item.title }} · {{ item.host }}
-                </li>
-              </ul>
-            </article>
-          </div>
+          @if (duplicateGroups().length > 0) {
+            <div class="space-y-3">
+              @for (group of duplicateGroups().slice(0, 12); track $index) {
+                <article class="rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:p-4">
+                  <p class="text-sm font-semibold text-slate-100">
+                    {{ group.reason === 'NORMALIZED_URL' ? 'Exact URL match' : 'Host + title match' }}
+                    <span class="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">{{ group.items.length }} links</span>
+                  </p>
+                  <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                    @for (item of group.items.slice(0, 4); track $index) {
+                      <li>{{ item.title }} · {{ item.host }}</li>
+                    }
+                  </ul>
+                </article>
+              }
+            </div>
+          }
         </section>
 
         <section class="flex flex-wrap gap-3">
@@ -93,7 +98,7 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
             Export prep (next)
           </button>
         </section>
-      </ng-container>
+      }
     </section>
   `,
 })
