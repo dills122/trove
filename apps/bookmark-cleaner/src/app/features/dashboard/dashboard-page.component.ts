@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { detectDuplicateGroups } from '../../core/analysis/duplicate-detection';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 
 @Component({
@@ -60,10 +61,6 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
                 <strong>{{ snapshot.analysis.warningCount }}</strong>
               </li>
               <li class="flex items-center justify-between">
-                <span>Bookmarklets</span>
-                <strong>{{ snapshot.analysis.bookmarkletCount }}</strong>
-              </li>
-              <li class="flex items-center justify-between">
                 <span>Uniqueness ratio</span>
                 <strong>{{ uniqueRatio() }}%</strong>
               </li>
@@ -82,35 +79,87 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
               <a routerLink="/import" class="rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-200 min-h-11 inline-flex items-center">
                 Re-import file
               </a>
-              <button
-                type="button"
-                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 min-h-11"
-                disabled
-                aria-disabled="true"
+              <a
+                routerLink="/organize"
+                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 min-h-11 inline-flex items-center"
               >
-                Duplicates (coming next)
-              </button>
+                Open organize step
+              </a>
             </div>
           </article>
         </section>
 
+        <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-6">
+          <h2 class="text-xl font-semibold">Cleanup impact</h2>
+          <p class="mt-1 text-sm text-slate-300">
+            Estimated outcomes if duplicate groups are reviewed with one preferred bookmark kept per group.
+          </p>
+          <div class="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+            <article class="metric-card">
+              <p class="metric-label">Potential removals</p>
+              <p class="metric-value">{{ potentialRemovals() }}</p>
+            </article>
+            <article class="metric-card">
+              <p class="metric-label">Largest group</p>
+              <p class="metric-value">{{ largestDuplicateGroup() }}</p>
+            </article>
+            <article class="metric-card">
+              <p class="metric-label">Duplicate groups</p>
+              <p class="metric-value">{{ duplicateGroups().length }}</p>
+            </article>
+            <article class="metric-card">
+              <p class="metric-label">% in groups</p>
+              <p class="metric-value">{{ duplicateCoveragePercent() }}%</p>
+            </article>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300 sm:flex sm:flex-wrap sm:gap-3">
+            <span class="rounded-full border border-white/15 bg-white/5 px-2.5 py-1">Exact URL groups: {{ exactDuplicateGroupCount() }}</span>
+            <span class="rounded-full border border-white/15 bg-white/5 px-2.5 py-1">Intent groups: {{ intentDuplicateGroupCount() }}</span>
+          </div>
+        </section>
+
         <section class="grid gap-4 max-[375px]:gap-3 lg:grid-cols-3">
           <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-5">
-            <h3 class="text-lg font-semibold">Scheme mix</h3>
+            <h3 class="text-lg font-semibold">Domain dependency</h3>
             <ul class="mt-3 space-y-2 text-sm text-slate-200">
-              <li class="flex items-center justify-between" *ngFor="let item of visibleSchemes()">
-                <span>{{ item.key }}</span>
-                <strong class="shrink-0">{{ item.count }}</strong>
+              <li class="flex items-center justify-between">
+                <span>Top 5 share</span>
+                <strong class="shrink-0">{{ topFiveDomainSharePercent() }}%</strong>
+              </li>
+              <li class="flex items-center justify-between">
+                <span>Top 1 dependency</span>
+                <strong class="shrink-0">{{ topDomainSharePercent() }}%</strong>
+              </li>
+              <li class="flex items-center justify-between">
+                <span>Distinct hosts</span>
+                <strong class="shrink-0">{{ hostDiversity() }}</strong>
+              </li>
+              <li class="flex items-center justify-between">
+                <span>Shared domains</span>
+                <strong class="shrink-0">{{ registrableDomainDiversity() }}</strong>
               </li>
             </ul>
-            <button
-              *ngIf="hasMoreSchemes()"
-              type="button"
-              class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/5 lg:hidden"
-              (click)="showAllSchemes.set(!showAllSchemes())"
-            >
-              {{ showAllSchemes() ? 'Show less' : 'Show more' }}
-            </button>
+            <p class="mt-3 text-xs text-slate-400">{{ dependencySignal() }}</p>
+          </article>
+
+          <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-5">
+            <h3 class="text-lg font-semibold">Structure insights</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-200">
+              <li class="flex items-center justify-between">
+                <span>Avg links per folder</span>
+                <strong class="shrink-0">{{ avgLinksPerFolder() }}</strong>
+              </li>
+              <li class="flex items-center justify-between">
+                <span>Deepest folder depth</span>
+                <strong class="shrink-0">{{ deepestFolderDepth() }}</strong>
+              </li>
+            </ul>
+            <p class="mt-3 text-xs text-slate-400">
+              Protocol mix:
+              <span *ngFor="let item of protocolChips(); let last = last">
+                {{ item.key }} {{ item.count }}<span *ngIf="!last">, </span>
+              </span>
+            </p>
           </article>
 
           <article class="rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-5">
@@ -156,7 +205,6 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
 export class DashboardPageComponent {
   readonly store = inject(WorkspaceStore);
   private readonly mobileListLimit = 8;
-  readonly showAllSchemes = signal(false);
   readonly showAllHosts = signal(false);
   readonly showAllDomains = signal(false);
 
@@ -171,6 +219,11 @@ export class DashboardPageComponent {
 
   readonly guidance = computed(() => {
     const ratio = this.uniqueRatio();
+    const duplicates = this.duplicateGroups().length;
+
+    if (duplicates > 0) {
+      return `${duplicates} duplicate groups found. Continue to Organize for keep/remove planning.`;
+    }
 
     if (ratio >= 85) {
       return 'Your bookmarks look relatively distinct. Focus on warnings first, then organization.';
@@ -201,12 +254,107 @@ export class DashboardPageComponent {
     () => (this.store.snapshot()?.analysis.topRegistrableDomains.length ?? 0) > this.mobileListLimit,
   );
 
-  readonly visibleSchemes = computed(() => {
-    const items = this.store.snapshot()?.analysis.schemeBreakdown ?? [];
-    return this.showAllSchemes() ? items : items.slice(0, this.mobileListLimit);
+  readonly duplicateGroups = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot) {
+      return [];
+    }
+    return detectDuplicateGroups(snapshot.bookmarks);
   });
 
-  readonly hasMoreSchemes = computed(
-    () => (this.store.snapshot()?.analysis.schemeBreakdown.length ?? 0) > this.mobileListLimit,
+  readonly duplicateLinksCount = computed(() =>
+    this.duplicateGroups().reduce((sum, group) => sum + group.items.length, 0),
   );
+
+  readonly potentialRemovals = computed(() =>
+    this.duplicateGroups().reduce((sum, group) => sum + Math.max(0, group.items.length - 1), 0),
+  );
+
+  readonly largestDuplicateGroup = computed(() =>
+    this.duplicateGroups().reduce((max, group) => Math.max(max, group.items.length), 0),
+  );
+
+  readonly duplicateCoveragePercent = computed(() => {
+    const total = this.store.snapshot()?.analysis.totalBookmarks ?? 0;
+    if (total === 0) {
+      return 0;
+    }
+    return Math.round((this.duplicateLinksCount() / total) * 100);
+  });
+
+  readonly exactDuplicateGroupCount = computed(
+    () => this.duplicateGroups().filter((group) => group.reason === 'NORMALIZED_URL').length,
+  );
+
+  readonly intentDuplicateGroupCount = computed(
+    () => this.duplicateGroups().filter((group) => group.reason === 'HOST_AND_TITLE').length,
+  );
+
+  readonly hostDiversity = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot) {
+      return 0;
+    }
+    return new Set(snapshot.bookmarks.map((bookmark) => bookmark.host)).size;
+  });
+
+  readonly registrableDomainDiversity = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot) {
+      return 0;
+    }
+    return new Set(snapshot.bookmarks.map((bookmark) => bookmark.registrableDomain)).size;
+  });
+
+  readonly avgLinksPerFolder = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot || snapshot.analysis.totalFolders === 0) {
+      return 0;
+    }
+    return Math.round((snapshot.analysis.totalBookmarks / snapshot.analysis.totalFolders) * 10) / 10;
+  });
+
+  readonly deepestFolderDepth = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot) {
+      return 0;
+    }
+    return snapshot.bookmarks.reduce((max, bookmark) => Math.max(max, bookmark.path.length), 0);
+  });
+
+  readonly protocolChips = computed(() => (this.store.snapshot()?.analysis.schemeBreakdown ?? []).slice(0, 4));
+
+  readonly topFiveDomainSharePercent = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot || snapshot.analysis.totalBookmarks === 0) {
+      return 0;
+    }
+    const topFiveCount = snapshot.analysis.topRegistrableDomains
+      .slice(0, 5)
+      .reduce((sum, item) => sum + item.count, 0);
+    return Math.round((topFiveCount / snapshot.analysis.totalBookmarks) * 100);
+  });
+
+  readonly topDomainSharePercent = computed(() => {
+    const snapshot = this.store.snapshot();
+    if (!snapshot || snapshot.analysis.totalBookmarks === 0) {
+      return 0;
+    }
+    const topDomainCount = snapshot.analysis.topRegistrableDomains[0]?.count ?? 0;
+    return Math.round((topDomainCount / snapshot.analysis.totalBookmarks) * 100);
+  });
+
+  readonly cleanupIndex = computed(() => {
+    const duplicateWeight = Math.min(100, this.duplicateCoveragePercent() * 1.4);
+    const warningWeight = Math.min(100, (this.store.snapshot()?.analysis.warningCount ?? 0) * 2);
+    const dependencyWeight = Math.min(100, this.topFiveDomainSharePercent() * 1.1);
+    return Math.round((duplicateWeight * 0.5 + warningWeight * 0.2 + dependencyWeight * 0.3) * 10) / 10;
+  });
+
+  readonly dependencySignal = computed(() => {
+    const topFiveShare = this.topFiveDomainSharePercent();
+    const topOneShare = this.topDomainSharePercent();
+    const index = this.cleanupIndex();
+    return `Top 5 domains account for ${topFiveShare}% of links; top domain alone is ${topOneShare}%. Cleanup index: ${index}.`;
+  });
 }

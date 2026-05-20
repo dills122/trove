@@ -211,3 +211,66 @@ Fixtures:
 
 5. PWA stale experiences
 - Mitigation: update banner + network/cache strategy
+
+## 15. Review Analytics Roadmap
+
+This section defines feasible analytics ideas, grouped by implementation readiness.
+
+### 15.1 MVP-Now (Import-Only Data, Local Compute)
+
+These require only imported bookmark HTML + local analysis:
+
+- Domain dependency:
+  - top domains concentration (`top 5` share)
+  - single-point dependency warnings
+- Duplicate intent analytics:
+  - exact duplicates (`normalizedUrl`)
+  - possible intent duplicates (`host + normalized title`)
+  - potential removal estimates
+- Organization quality:
+  - folder depth distribution
+  - empty/derived-title indicators
+  - average links per folder
+- Structure/story metrics:
+  - host and registrable-domain diversity
+  - bookmarklet concentration
+  - protocol distribution (compact display only)
+- Composite cleanup index:
+  - weighted score from duplicates, malformed entries, and domain concentration
+
+### 15.2 MVP-Next (Opt-In Cloud Assist Required)
+
+These require Cloudflare Worker health checks and optional D1 cache:
+
+- alive/dead/timeout/redirect classifications
+- redirect drift (saved URL vs final URL)
+- domain fragility rates (dead/timeout by domain)
+- most fragile folders/collections
+- wayback suggestion hooks for dead links
+
+### 15.3 Post-MVP (Additional Behavioral Data Required)
+
+These require revisit/open telemetry and timeline storage (not in current MVP model):
+
+- save vs consume ratio
+- bookmark half-life and revisit decay
+- hoarding velocity / phase timelines
+- intent vs action completion metrics
+- rediscovery “on this day” feed
+
+### 15.4 Post-MVP Advanced (ML/Graph Investment)
+
+- semantic clustering and “era” detection
+- project inference from bookmark groups
+- knowledge graph visualization
+- personality/wrapped-style profiling
+
+### 15.5 Review Page Metric Principles
+
+- prioritize actionable metrics over novelty
+- avoid duplicate metrics across cards
+- keep narrative hierarchy:
+  1. core counts
+  2. cleanup impact
+  3. dependency/structure diagnostics
+- mobile-first density controls (collapse/expand where needed)

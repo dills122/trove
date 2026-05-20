@@ -41,6 +41,10 @@ Deliverables:
 - flatten and normalize pipeline
 - stats computation (counts, domains, malformed)
 - dashboard UI cards/lists
+- review analytics v1:
+  - domain dependency concentration
+  - structure quality metrics
+  - cleanup index baseline
 
 Exit criteria:
 - deterministic analysis from same input
@@ -53,6 +57,9 @@ Deliverables:
 - exact duplicate grouping
 - possible duplicate grouping (`http`/`https` variants)
 - user action model and preview impact
+- duplicate intent analytics:
+  - host+title “possible intent” clusters
+  - potential removal and duplicate coverage summaries
 
 Exit criteria:
 - user can resolve duplicates without mutating original snapshot
@@ -87,6 +94,10 @@ Deliverables:
 - batch and single-url check endpoints
 - D1 cache behavior with TTL
 - health status UI and progressive updates
+- health analytics:
+  - alive/dead/redirect/timeout mix
+  - domain fragility table
+  - fragile collection detection
 
 Exit criteria:
 - health checks work only after consent
@@ -98,6 +109,7 @@ Exit criteria:
 - warning clarity and user confidence messaging
 - explicit labels for possible vs confirmed duplicates
 - no hidden destructive actions
+- prefer “storytelling” analytics (dependency, cleanup impact, fragility) over vanity metrics
 
 ### 3.2 Performance
 - worker event progress updates

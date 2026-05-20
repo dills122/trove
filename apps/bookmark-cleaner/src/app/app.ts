@@ -22,7 +22,7 @@ export class App {
   readonly steps: WorkflowStep[] = [
     { id: 1, label: 'Import', path: '/import' },
     { id: 2, label: 'Review', path: '/dashboard' },
-    { id: 3, label: 'Organize', path: null },
+    { id: 3, label: 'Organize', path: '/organize' },
     { id: 4, label: 'Export', path: null },
   ];
 
@@ -46,6 +46,11 @@ export class App {
   }
 
   private updateCurrentStep(url: string): void {
+    if (url.startsWith('/organize')) {
+      this.currentStep.set(3);
+      return;
+    }
+
     if (url.startsWith('/dashboard')) {
       this.currentStep.set(2);
       return;
