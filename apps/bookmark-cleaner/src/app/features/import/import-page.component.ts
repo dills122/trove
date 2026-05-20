@@ -26,6 +26,15 @@ interface WarningGroup {
             Start with a Chrome export HTML file. Trove reads it into a working snapshot so your
             original file and browser bookmarks remain untouched.
           </p>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center rounded-xl border border-white/20 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-white/5"
+              (click)="showHelp.set(!showHelp())"
+            >
+              {{ showHelp() ? 'Hide export guide' : 'How to export bookmarks' }}
+            </button>
+          </div>
         </div>
 
         <aside class="rounded-2xl border border-white/10 bg-white/5 p-4 max-[375px]:p-3.5 text-sm text-slate-200">
@@ -37,6 +46,99 @@ interface WarningGroup {
           </ol>
         </aside>
       </header>
+
+      <section *ngIf="showHelp()" class="rounded-3xl border border-white/10 bg-white/5 p-4 max-[375px]:p-3.5 sm:p-6">
+        <header class="mb-4">
+          <h2 class="text-xl font-semibold">Export guide</h2>
+          <p class="mt-1 text-sm text-slate-300">
+            Chrome format is fully supported right now. Other browser guides are staged for upcoming support.
+          </p>
+        </header>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center rounded-full px-3 py-1.5 text-xs font-medium"
+            [ngClass]="
+              selectedHelpBrowser() === 'chrome'
+                ? 'bg-white text-slate-950'
+                : 'border border-white/20 text-slate-300'
+            "
+            (click)="selectedHelpBrowser.set('chrome')"
+          >
+            Chrome
+          </button>
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
+            (click)="selectedHelpBrowser.set('edge')"
+          >
+            Edge (soon)
+          </button>
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
+            (click)="selectedHelpBrowser.set('firefox')"
+          >
+            Firefox (soon)
+          </button>
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-slate-400"
+            (click)="selectedHelpBrowser.set('safari')"
+          >
+            Safari (soon)
+          </button>
+        </div>
+
+        <div *ngIf="selectedHelpBrowser() === 'chrome'" class="mt-4 space-y-4">
+          <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-cyan-300">Visual Walkthrough</p>
+            <h3 class="mt-2 text-base font-semibold text-slate-100">Export from Chrome in 3 steps</h3>
+
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+              <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
+                  1
+                </div>
+                <p class="text-sm font-medium text-slate-100">Open Bookmarks Manager</p>
+                <p class="mt-1 text-xs text-slate-300">Press <strong>Ctrl/Cmd + Shift + O</strong>.</p>
+              </article>
+
+              <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
+                  2
+                </div>
+                <p class="text-sm font-medium text-slate-100">Use the menu</p>
+                <p class="mt-1 text-xs text-slate-300">Click the <strong>three-dot</strong> menu in the manager.</p>
+              </article>
+
+              <article class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+                <div class="mb-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-cyan-500/20 px-2 text-xs font-semibold text-cyan-100">
+                  3
+                </div>
+                <p class="text-sm font-medium text-slate-100">Export + upload</p>
+                <p class="mt-1 text-xs text-slate-300">
+                  Select <strong>Export bookmarks</strong>, then upload that HTML file here.
+                </p>
+              </article>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-sm font-medium text-slate-100">Troubleshooting</p>
+            <ul class="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-300">
+              <li>If file type is wrong, make sure the export ends in <code>.html</code>.</li>
+              <li>If import looks stale, choose a new file to replace the loaded workspace.</li>
+              <li>Source bookmarks are never modified in place.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div *ngIf="selectedHelpBrowser() !== 'chrome'" class="mt-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
+          This guide is coming soon. For now, export from Chrome Bookmarks Manager to HTML and import that file here.
+        </div>
+      </section>
 
       <section class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 max-[375px]:p-3.5 shadow-xl shadow-slate-950/40 sm:p-6">
         <label for="bookmark-file" class="mb-3 block text-sm font-medium text-slate-100">Bookmark HTML file</label>
@@ -52,6 +154,24 @@ interface WarningGroup {
         </p>
       </section>
 
+      <section
+        *ngIf="hasPersistedSnapshot() && !showSnapshotSummary()"
+        class="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300"
+      >
+        <p>
+          A previous import is loaded from local storage. The file input stays empty until you choose a new file.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center rounded-xl border border-white/20 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-white/5"
+            (click)="showSnapshotSummary.set(true)"
+          >
+            View loaded summary
+          </button>
+        </div>
+      </section>
+
       <div
         *ngIf="store.isProcessing()"
         class="rounded-2xl border border-cyan-600/30 bg-cyan-500/10 p-4 text-sm text-cyan-100"
@@ -64,7 +184,12 @@ interface WarningGroup {
         {{ error() }}
       </div>
 
-      <section *ngIf="store.snapshot() as snapshot" class="space-y-5 max-[375px]:space-y-4 sm:space-y-6" aria-label="Import summary">
+      <section
+        *ngIf="store.snapshot() as snapshot"
+        [class.hidden]="!showSnapshotSummary()"
+        class="space-y-5 max-[375px]:space-y-4 sm:space-y-6"
+        aria-label="Import summary"
+      >
         <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
           <article class="metric-card">
             <p class="metric-label">Exported links</p>
@@ -126,6 +251,10 @@ export class ImportPageComponent {
   readonly store = inject(WorkspaceStore);
   private readonly worker = inject(BookmarkWorkerService);
   readonly error = signal<string | null>(null);
+  readonly showSnapshotSummary = signal(false);
+  readonly showHelp = signal(false);
+  readonly selectedHelpBrowser = signal<'chrome' | 'edge' | 'firefox' | 'safari'>('chrome');
+  readonly hasPersistedSnapshot = computed(() => this.store.snapshot() !== null);
 
   readonly warningGroups = computed<WarningGroup[]>(() => {
     const warnings = this.store.snapshot()?.warnings ?? [];
@@ -157,11 +286,17 @@ export class ImportPageComponent {
       return;
     }
 
+    await this.parseFile(file);
+    input.value = '';
+  }
+
+  private async parseFile(file: File): Promise<void> {
     try {
       this.store.setProcessing(true);
       const html = await file.text();
       const snapshot = await this.worker.parse(html);
       await this.store.save(snapshot);
+      this.showSnapshotSummary.set(true);
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'Unable to parse bookmark file');
     } finally {
