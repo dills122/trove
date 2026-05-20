@@ -59,14 +59,24 @@
             </div>
           </div>
           @if (pwa.installSupported()) {
-            <button
-              type="button"
-              class="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 text-xs font-medium text-emerald-100 hover:bg-emerald-400/20"
-              (click)="installApp()"
-              aria-label="Install app"
-            >
-              Install
-            </button>
+            <div class="inline-flex items-center gap-1">
+              <button
+                type="button"
+                class="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 text-xs font-medium text-emerald-100 hover:bg-emerald-400/20"
+                (click)="installApp()"
+                aria-label="Install app"
+              >
+                Install
+              </button>
+              <button
+                type="button"
+                class="inline-flex h-9 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs text-slate-300 hover:bg-white/10"
+                (click)="pwa.dismissInstallPrompt()"
+                aria-label="Dismiss install prompt"
+              >
+                ×
+              </button>
+            </div>
           }
           <button
             type="button"
