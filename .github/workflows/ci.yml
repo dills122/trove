@@ -1,27 +1,59 @@
 name: CI
+
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-      - name: Git config user
-        uses: snow-actions/git-config-user@v1.0.0
+          fetch-depth: 0
+
+      - name: Configure Git identity for CI
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
         with:
-          name: # Service Account's Name
-          email: # Service Account's Email Address
-      - uses: actions/setup-node@v3
+          node-version: 22
+          cache: npm
+
+      - name: Rush install
+        run: node common/scripts/install-run-rush.js update
+
+      - name: Rush build
+        run: node common/scripts/install-run-rush.js build
+
+      - name: Rush lint
+        run: node common/scripts/install-run-rush.js lint
+
+      - name: Rush test
+        run: node common/scripts/install-run-rush.js test
+
+      - name: Rush typecheck
+        run: node common/scripts/install-run-rush.js typecheck
+
+  verify-changelog:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
-          node-version: 16
-      - name: Verify Change Logs
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Rush install
+        run: node common/scripts/install-run-rush.js update
+
+      - name: Verify change logs
         run: node common/scripts/install-run-rush.js change --verify
-      - name: Rush Install
-        run: node common/scripts/install-run-rush.js install
-      - name: Rush rebuild
-        run: node common/scripts/install-run-rush.js rebuild --verbose --production
