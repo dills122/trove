@@ -1,0 +1,50 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/bookmark-cleaner/**"
+      - "common/config/rush/**"
+      - "common/scripts/**"
+      - "rush.json"
+      - ".github/workflows/pages-deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      PAGES_CNAME: ${{ vars.PAGES_CNAME }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git identity for CI
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: common/config/rush/pnpm-lock.yaml
+
+      - name: Rush install
+        run: node common/scripts/install-run-rush.js update
+
+      - name: Build web app
+        run: node common/scripts/install-run-rush.js build --to @trove/bookmark-cleaner
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: apps/bookmark-cleaner/dist/angular-mat-tailwind-starter/browser
+          force_orphan: true
+          cname: ${{ env.PAGES_CNAME }}
