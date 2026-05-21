@@ -1,13 +1,29 @@
 {
   "name": "Trove",
   "short_name": "Trove",
+  "id": "/",
   "description": "Local-first bookmark cleanup and organization workflow.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#020617",
   "theme_color": "#020617",
   "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Import bookmarks",
+      "short_name": "Import",
+      "description": "Open the import step",
+      "url": "/import"
+    },
+    {
+      "name": "Review snapshot",
+      "short_name": "Review",
+      "description": "Open the review dashboard",
+      "url": "/dashboard"
+    }
+  ],
   "icons": [
     {
       "src": "trove-icon-192.png",

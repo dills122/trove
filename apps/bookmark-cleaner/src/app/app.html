@@ -21,6 +21,11 @@
           </button>
         </div>
       }
+      @if (pwa.shouldShowManualInstallHint() && pwa.manualInstallHint(); as hint) {
+        <div class="rounded-lg border border-sky-400/30 bg-sky-500/10 px-3 py-2 text-xs text-sky-100">
+          {{ hint }}
+        </div>
+      }
       @if (pwa.updateAvailable()) {
         <div class="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">
           <span>Update available.</span>

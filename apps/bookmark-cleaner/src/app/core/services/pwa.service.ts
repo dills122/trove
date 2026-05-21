@@ -21,9 +21,13 @@ export class PwaService {
   readonly isOnline = signal(true);
   readonly updateAvailable = signal(false);
   readonly unrecoverableState = signal<string | null>(null);
+  readonly manualInstallHint = signal<string | null>(null);
   readonly isCheckingForUpdate = computed(() => this.updateCheckInFlight());
   readonly installSupported = computed(
     () => this.deferredInstallPrompt() !== null && !this.installed() && !this.installDismissed(),
+  );
+  readonly shouldShowManualInstallHint = computed(
+    () => !this.installed() && !this.installSupported() && this.manualInstallHint() !== null,
   );
 
   public constructor() {
@@ -37,6 +41,7 @@ export class PwaService {
         ? window.matchMedia('(display-mode: standalone)').matches
         : false;
     this.installed.set(standaloneMode);
+    this.manualInstallHint.set(this.detectManualInstallHint());
 
     this.isOnline.set(navigator.onLine);
     window.addEventListener('online', () => {
@@ -136,5 +141,17 @@ export class PwaService {
   dismissInstallPrompt(): void {
     this.installDismissed.set(true);
     localStorage.setItem(PwaService.INSTALL_DISMISSED_KEY, '1');
+  }
+
+  private detectManualInstallHint(): string | null {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+    const isSafariEngine = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
+
+    if (isIosDevice && isSafariEngine) {
+      return 'In Safari, tap Share and choose “Add to Home Screen” to install Trove.';
+    }
+
+    return null;
   }
 }

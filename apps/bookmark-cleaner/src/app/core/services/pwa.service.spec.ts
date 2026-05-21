@@ -57,6 +57,11 @@ describe('PwaService', () => {
     jest.useFakeTimers();
     localStorage.clear();
     setOnline(true);
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      value:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    });
 
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
@@ -150,5 +155,19 @@ describe('PwaService', () => {
 
     unrecoverableEvents.next({ reason: 'Cache mismatch' });
     expect(service.unrecoverableState()).toBe('Cache mismatch');
+  });
+
+  it('shows manual install hint for iOS Safari when app-install prompt is unavailable', () => {
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      value:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    });
+
+    const service = createService();
+
+    expect(service.installSupported()).toBe(false);
+    expect(service.shouldShowManualInstallHint()).toBe(true);
+    expect(service.manualInstallHint()).toContain('Add to Home Screen');
   });
 });
