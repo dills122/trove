@@ -156,6 +156,49 @@ Filename default:
 Future format support:
 - architecture should keep export pipeline pluggable for additional formats.
 
+## 10.1 Organize Decision Engine (MVP)
+
+Organize is implemented as a non-destructive decision layer:
+
+1. Detection:
+- exact groups: `normalizedUrl` identical
+- possible groups: same registrable domain with strong similarity signals (title/protocol/mobile variants)
+
+2. Transformation proposal:
+- pure transform functions return patch proposals (`transform(input, config) => patch[]`)
+- no direct mutation of source data during review
+
+3. User decision:
+- user accepts/rejects/modifies per group and optionally via bulk exact-group actions
+
+4. Export materialization:
+- final cleaned tree is derived at export time from source snapshot + accepted decisions
+
+### Group state model
+- `status`: `unreviewed | accepted | rejected | modified | ignored`
+- `confidence`: `exact | possible`
+- `strategy`: `keep_newest | keep_oldest | keep_selected | remove_selected | keep_all | skip`
+- `keptIds[]`, `removedIds[]`
+
+### MVP organize actions
+- Keep newest
+- Keep oldest
+- Keep selected
+- Remove selected
+- Keep all / Skip group
+- Bulk apply strategy to exact groups
+- Optional bulk apply to possible groups behind explicit warning
+
+### MVP transforms
+- Tracking parameter cleanup preview
+- Optional protocol preference suggestion (`https`)
+- Optional empty-folder cleanup on export
+
+### Guardrails
+- No destructive source mutation during organize
+- Possible-duplicate actions never auto-applied silently
+- Every change is undoable/redoable before export
+
 ## 11. PWA Caching and Update Strategy
 
 Caching strategy:
@@ -194,6 +237,12 @@ Backend:
 
 Fixtures:
 - small, medium, large (800+ bookmarks) datasets
+
+Organize-specific tests:
+- pure transform patch tests
+- decision reducer/action-log replay tests
+- projected impact calculation tests
+- export materialization tests from source + actions
 
 ## 14. Key Risks and Mitigations
 
@@ -277,6 +326,44 @@ This sprint establishes production-ready PWA foundations and reduces architectur
 - extract reusable workflow UI blocks into focused components
 - move orchestration logic out of page components into dedicated services
 - enforce component/template size guardrails to prevent regressions
+
+## 17. State Management Strategy
+
+### 17.1 Recommendation
+Use `@ngrx/signals` Signal Store for MVP feature state, not full global NgRx Store/Effects.
+
+Rationale:
+- existing app already uses Angular Signals patterns
+- local-first workflows fit feature-scoped stores with computed selectors
+- lower ceremony and faster iteration for MVP
+- action-log driven organize state can still be deterministic and replayable
+
+### 17.2 Store topology (MVP)
+- `WorkspaceStore`: source snapshot, working snapshot, analysis, persistence hooks
+- `OrganizeStore`: duplicate groups, action log, derived decisions, undo/redo, projected impact
+- `UiPreferencesStore`: environment and UX preferences
+- `PwaStore` (or PWA service-backed facade): install/update/offline UI state
+
+### 17.3 Action-log model
+- persist and replay domain actions rather than mutating data directly:
+  - `GROUP_SET_STRATEGY`
+  - `GROUP_SET_KEEP_IDS`
+  - `GROUP_SET_REMOVE_IDS`
+  - `GROUP_SKIP`
+  - `GROUP_RESET`
+  - `BULK_APPLY_STRATEGY`
+  - `TRANSFORM_TOGGLE`
+  - `UNDO`
+  - `REDO`
+
+Derived state = `source snapshot + normalized groups + action log`.
+
+### 17.4 When to adopt full NgRx Store
+Re-evaluate full NgRx Store/Effects when one or more are true:
+- multiple independently deployed frontends share state contracts
+- complex cross-feature side-effect orchestration grows significantly
+- extensive devtools/time-travel requirements exceed Signal Store tooling
+- multi-actor/cloud-synced workflows become core
 
 ### 16.3 Constraints
 - preserve local-first behavior and non-destructive workflow semantics
