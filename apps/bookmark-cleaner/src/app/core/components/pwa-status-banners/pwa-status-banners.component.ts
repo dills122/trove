@@ -12,7 +12,9 @@ export class PwaStatusBannersComponent {
   readonly updateAvailable = input(false);
   readonly unrecoverableReason = input<string | null>(null);
   readonly manualInstallHint = input<string | null>(null);
+  readonly updateStatusMessage = input<string | null>(null);
 
   readonly dismissUpdate = output<void>();
   readonly reloadForUpdate = output<void>();
+  readonly dismissUpdateStatus = output<void>();
 }

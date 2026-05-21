@@ -9,23 +9,31 @@ interface BeforeInstallPromptEvent extends Event {
 
 @Injectable({ providedIn: 'root' })
 export class PwaService {
-  private static readonly INSTALL_DISMISSED_KEY = 'trove-pwa-install-dismissed';
   private static readonly UPDATE_DISMISSED_PREFIX = 'trove-pwa-update-dismissed:';
   private static readonly UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+  private static readonly MANUAL_UPDATE_COOLDOWN_MS = 20 * 1000;
+  private static readonly UPDATE_STATUS_HIDE_MS = 6 * 1000;
   private readonly swUpdate = inject(SwUpdate);
   private readonly deferredInstallPrompt = signal<BeforeInstallPromptEvent | null>(null);
   private readonly installed = signal(false);
-  private readonly installDismissed = signal(false);
   private readonly readyUpdateHash = signal<string | null>(null);
   private readonly updateCheckInFlight = signal(false);
+  private readonly manualUpdateCooldown = signal(false);
   readonly isOnline = signal(true);
   readonly updateAvailable = signal(false);
   readonly unrecoverableState = signal<string | null>(null);
   readonly manualInstallHint = signal<string | null>(null);
+  readonly updateStatusMessage = signal<string | null>(null);
+  readonly updateChecksSupported = this.swUpdate.isEnabled;
   readonly isCheckingForUpdate = computed(() => this.updateCheckInFlight());
-  readonly installSupported = computed(
-    () => this.deferredInstallPrompt() !== null && !this.installed() && !this.installDismissed(),
+  readonly canManualCheckForUpdate = computed(
+    () =>
+      this.swUpdate.isEnabled &&
+      this.isOnline() &&
+      !this.isCheckingForUpdate() &&
+      !this.manualUpdateCooldown(),
   );
+  readonly installSupported = computed(() => this.deferredInstallPrompt() !== null && !this.installed());
   readonly shouldShowManualInstallHint = computed(
     () => !this.installed() && !this.installSupported() && this.manualInstallHint() !== null,
   );
@@ -35,7 +43,6 @@ export class PwaService {
       return;
     }
 
-    this.installDismissed.set(localStorage.getItem(PwaService.INSTALL_DISMISSED_KEY) === '1');
     const standaloneMode =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(display-mode: standalone)').matches
@@ -63,8 +70,6 @@ export class PwaService {
     window.addEventListener('appinstalled', () => {
       this.installed.set(true);
       this.deferredInstallPrompt.set(null);
-      this.installDismissed.set(true);
-      localStorage.setItem(PwaService.INSTALL_DISMISSED_KEY, '1');
     });
 
     if (this.swUpdate.isEnabled) {
@@ -98,13 +103,9 @@ export class PwaService {
 
     if (choice.outcome === 'accepted') {
       this.installed.set(true);
-      this.installDismissed.set(true);
-      localStorage.setItem(PwaService.INSTALL_DISMISSED_KEY, '1');
       return true;
     }
 
-    this.installDismissed.set(true);
-    localStorage.setItem(PwaService.INSTALL_DISMISSED_KEY, '1');
     return false;
   }
 
@@ -125,22 +126,66 @@ export class PwaService {
     this.updateAvailable.set(false);
   }
 
-  async checkForUpdates(): Promise<void> {
-    if (!this.swUpdate.isEnabled || !this.isOnline() || this.updateCheckInFlight()) {
+  async checkForUpdates(options: { manual?: boolean } = {}): Promise<void> {
+    const isManual = options.manual === true;
+
+    if (!this.swUpdate.isEnabled) {
+      if (isManual) {
+        this.updateStatusMessage.set('Update checks are unavailable in local dev mode.');
+        this.scheduleStatusClear();
+      }
+      return;
+    }
+
+    if (isManual && this.manualUpdateCooldown()) {
+      this.updateStatusMessage.set('Update check cooldown active. Try again in a few seconds.');
+      this.scheduleStatusClear();
+      return;
+    }
+
+    if (!this.isOnline() || this.updateCheckInFlight()) {
       return;
     }
 
     this.updateCheckInFlight.set(true);
     try {
-      await this.swUpdate.checkForUpdate();
+      const updateDetected = await this.swUpdate.checkForUpdate();
+      if (isManual) {
+        if (updateDetected) {
+          this.updateStatusMessage.set('Update found. Reload when ready.');
+        } else {
+          this.updateStatusMessage.set('No updates found. You are on the latest version.');
+        }
+        this.scheduleStatusClear();
+      }
+    } catch {
+      if (isManual) {
+        this.updateStatusMessage.set('Update check failed. Please try again shortly.');
+        this.scheduleStatusClear();
+      }
     } finally {
       this.updateCheckInFlight.set(false);
+      if (isManual) {
+        this.startManualCheckCooldown();
+      }
     }
   }
 
-  dismissInstallPrompt(): void {
-    this.installDismissed.set(true);
-    localStorage.setItem(PwaService.INSTALL_DISMISSED_KEY, '1');
+  dismissUpdateStatusMessage(): void {
+    this.updateStatusMessage.set(null);
+  }
+
+  private startManualCheckCooldown(): void {
+    this.manualUpdateCooldown.set(true);
+    window.setTimeout(() => {
+      this.manualUpdateCooldown.set(false);
+    }, PwaService.MANUAL_UPDATE_COOLDOWN_MS);
+  }
+
+  private scheduleStatusClear(): void {
+    window.setTimeout(() => {
+      this.updateStatusMessage.set(null);
+    }, PwaService.UPDATE_STATUS_HIDE_MS);
   }
 
   private detectManualInstallHint(): string | null {
