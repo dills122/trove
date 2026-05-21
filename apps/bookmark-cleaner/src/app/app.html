@@ -13,6 +13,14 @@
           Offline mode: local review features remain available.
         </div>
       }
+      @if (pwa.unrecoverableState(); as reason) {
+        <div class="flex items-center justify-between gap-2 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
+          <span>App update issue detected ({{ reason }}). Reload to recover.</span>
+          <button type="button" class="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-slate-950" (click)="applyUpdate()">
+            Reload now
+          </button>
+        </div>
+      }
       @if (pwa.updateAvailable()) {
         <div class="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">
           <span>Update available.</span>
@@ -78,6 +86,15 @@
               </button>
             </div>
           }
+          <button
+            type="button"
+            class="inline-flex h-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2.5 text-xs text-slate-300 hover:bg-white/10"
+            [disabled]="pwa.isCheckingForUpdate() || !pwa.isOnline()"
+            (click)="checkForUpdates()"
+            aria-label="Check for app updates"
+          >
+            {{ pwa.isCheckingForUpdate() ? 'Checking…' : 'Check update' }}
+          </button>
           <button
             type="button"
             class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 opacity-60"

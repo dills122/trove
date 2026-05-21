@@ -202,4 +202,8 @@ export class App {
   applyUpdate(): void {
     void this.pwa.applyUpdate();
   }
+
+  checkForUpdates(): void {
+    void this.pwa.checkForUpdates();
+  }
 }

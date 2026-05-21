@@ -15,6 +15,8 @@ describe('App', () => {
           useValue: {
             isEnabled: false,
             versionUpdates: EMPTY,
+            unrecoverable: EMPTY,
+            checkForUpdate: jest.fn().mockResolvedValue(false),
             activateUpdate: jest.fn().mockResolvedValue(undefined),
           },
         },

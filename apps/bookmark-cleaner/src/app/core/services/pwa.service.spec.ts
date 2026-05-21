@@ -5,7 +5,14 @@ import { PwaService } from './pwa.service';
 
 describe('PwaService', () => {
   let versionEvents: Subject<VersionEvent>;
-  let swUpdateMock: { isEnabled: boolean; versionUpdates: Subject<VersionEvent>; activateUpdate: jest.Mock };
+  let unrecoverableEvents: Subject<{ reason: string }>;
+  let swUpdateMock: {
+    isEnabled: boolean;
+    versionUpdates: Subject<VersionEvent>;
+    unrecoverable: Subject<{ reason: string }>;
+    activateUpdate: jest.Mock;
+    checkForUpdate: jest.Mock;
+  };
 
   const setOnline = (online: boolean): void => {
     Object.defineProperty(window.navigator, 'onLine', {
@@ -29,10 +36,13 @@ describe('PwaService', () => {
 
   const createService = (): PwaService => {
     versionEvents = new Subject<VersionEvent>();
+    unrecoverableEvents = new Subject<{ reason: string }>();
     swUpdateMock = {
       isEnabled: true,
       versionUpdates: versionEvents,
+      unrecoverable: unrecoverableEvents,
       activateUpdate: jest.fn().mockResolvedValue(undefined),
+      checkForUpdate: jest.fn().mockResolvedValue(false),
     };
 
     TestBed.configureTestingModule({
@@ -44,6 +54,7 @@ describe('PwaService', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
+    jest.useFakeTimers();
     localStorage.clear();
     setOnline(true);
 
@@ -55,6 +66,10 @@ describe('PwaService', () => {
         removeEventListener: () => undefined,
       }),
     });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('exposes install support when browser emits beforeinstallprompt', () => {
@@ -112,5 +127,28 @@ describe('PwaService', () => {
     setOnline(true);
     window.dispatchEvent(new Event('online'));
     expect(service.isOnline()).toBe(true);
+  });
+
+  it('checks for updates on startup and when returning online', async () => {
+    const service = createService();
+    expect(service).toBeTruthy();
+    expect(swUpdateMock.checkForUpdate).toHaveBeenCalledTimes(1);
+    await Promise.resolve();
+
+    setOnline(false);
+    window.dispatchEvent(new Event('offline'));
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+    await Promise.resolve();
+
+    expect(swUpdateMock.checkForUpdate).toHaveBeenCalledTimes(2);
+  });
+
+  it('publishes unrecoverable service worker state', () => {
+    const service = createService();
+    expect(service.unrecoverableState()).toBeNull();
+
+    unrecoverableEvents.next({ reason: 'Cache mismatch' });
+    expect(service.unrecoverableState()).toBe('Cache mismatch');
   });
 });

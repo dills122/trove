@@ -11,13 +11,17 @@ interface BeforeInstallPromptEvent extends Event {
 export class PwaService {
   private static readonly INSTALL_DISMISSED_KEY = 'trove-pwa-install-dismissed';
   private static readonly UPDATE_DISMISSED_PREFIX = 'trove-pwa-update-dismissed:';
+  private static readonly UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
   private readonly swUpdate = inject(SwUpdate);
   private readonly deferredInstallPrompt = signal<BeforeInstallPromptEvent | null>(null);
   private readonly installed = signal(false);
   private readonly installDismissed = signal(false);
   private readonly readyUpdateHash = signal<string | null>(null);
+  private readonly updateCheckInFlight = signal(false);
   readonly isOnline = signal(true);
   readonly updateAvailable = signal(false);
+  readonly unrecoverableState = signal<string | null>(null);
+  readonly isCheckingForUpdate = computed(() => this.updateCheckInFlight());
   readonly installSupported = computed(
     () => this.deferredInstallPrompt() !== null && !this.installed() && !this.installDismissed(),
   );
@@ -35,8 +39,16 @@ export class PwaService {
     this.installed.set(standaloneMode);
 
     this.isOnline.set(navigator.onLine);
-    window.addEventListener('online', () => this.isOnline.set(true));
+    window.addEventListener('online', () => {
+      this.isOnline.set(true);
+      void this.checkForUpdates();
+    });
     window.addEventListener('offline', () => this.isOnline.set(false));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && this.isOnline()) {
+        void this.checkForUpdates();
+      }
+    });
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
@@ -59,6 +71,13 @@ export class PwaService {
           this.updateAvailable.set(!dismissed);
         }
       });
+      this.swUpdate.unrecoverable.subscribe((event) => {
+        this.unrecoverableState.set(event.reason);
+      });
+      void this.checkForUpdates();
+      window.setInterval(() => {
+        void this.checkForUpdates();
+      }, PwaService.UPDATE_CHECK_INTERVAL_MS);
     }
   }
 
@@ -99,6 +118,19 @@ export class PwaService {
       localStorage.setItem(`${PwaService.UPDATE_DISMISSED_PREFIX}${hash}`, '1');
     }
     this.updateAvailable.set(false);
+  }
+
+  async checkForUpdates(): Promise<void> {
+    if (!this.swUpdate.isEnabled || !this.isOnline() || this.updateCheckInFlight()) {
+      return;
+    }
+
+    this.updateCheckInFlight.set(true);
+    try {
+      await this.swUpdate.checkForUpdate();
+    } finally {
+      this.updateCheckInFlight.set(false);
+    }
   }
 
   dismissInstallPrompt(): void {
