@@ -1,0 +1,99 @@
+{
+  "configVersion": 1,
+  "timestamp": 1779331295626,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/favicon.ico",
+        "/index.html",
+        "/main-XUF573GJ.js",
+        "/manifest.webmanifest",
+        "/polyfills-HKGUTCPS.js",
+        "/styles-RKB3TURO.css",
+        "/worker-MUEEOI5V.js"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/infographics/chrome-step-1.svg",
+        "/infographics/chrome-step-2.svg",
+        "/infographics/chrome-step-3.svg",
+        "/trove-brand-source.png",
+        "/trove-icon-192.png",
+        "/trove-icon-32.png",
+        "/trove-icon-512.png",
+        "/trove-icon-64.png",
+        "/trove-icon-maskable-512.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "google-fonts",
+      "patterns": [
+        "https:\\/\\/fonts\\.googleapis\\.com\\/.*",
+        "https:\\/\\/fonts\\.gstatic\\.com\\/.*"
+      ],
+      "strategy": "performance",
+      "maxSize": 20,
+      "maxAge": 2592000000,
+      "timeoutMs": 10000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
+  "hashTable": {
+    "/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
+    "/index.html": "ed0b0719dc52d4bb615b7269819cb291f3f314f1",
+    "/infographics/chrome-step-1.svg": "ab2a5d43aaa692fc56cdf440012e0d99d29aa38e",
+    "/infographics/chrome-step-2.svg": "0b1b27e8854e652029a4462d8fda370349465e6e",
+    "/infographics/chrome-step-3.svg": "3219a67ae6a32b73e7719bb47c8dbd3aecfca84b",
+    "/main-XUF573GJ.js": "8d4b4928f1de19b563388d66db2a18c963d3145e",
+    "/manifest.webmanifest": "eb5290c8ac951cb1c8c8696010b64956960feafd",
+    "/polyfills-HKGUTCPS.js": "f2241e9a25858f895ce299d15f6f22e849e2fd72",
+    "/styles-RKB3TURO.css": "733814d87b986af778e46a220a95f4eb3738fb61",
+    "/trove-brand-source.png": "d5b3d3f00e4132de5cc43c0cb15710992d50a9c4",
+    "/trove-icon-192.png": "92beea3c8c1cb5706d03af9800a7fedc91919c15",
+    "/trove-icon-32.png": "2f37c2aa4ff482115a8369bdb911862b1438a57f",
+    "/trove-icon-512.png": "179a35ebc970f350822c69af34126153b2e3adba",
+    "/trove-icon-64.png": "6d72fea2285153444f7b95011337a0c6b2da9eb1",
+    "/trove-icon-maskable-512.png": "179a35ebc970f350822c69af34126153b2e3adba",
+    "/worker-MUEEOI5V.js": "79b5016eb6c8cb5655ff8142445867483981a02d"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
