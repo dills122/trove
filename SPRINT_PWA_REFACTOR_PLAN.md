@@ -72,6 +72,29 @@ Deliver installable, offline-capable PWA foundations while reducing frontend arc
 - Decomposed import flow and reduced component complexity
 - Updated docs and backlog tied to this sprint
 
+## Implementation Status (Current)
+
+Completed:
+- PWA manifest wired with icon set (`192`, `512`, maskable), categories, `id`, orientation, and app shortcuts.
+- Service worker enabled and registered for production with Angular SW config.
+- Offline state banner in app shell.
+- Install lifecycle handling:
+  - `beforeinstallprompt` capture and install CTA
+  - install dismissal persistence
+  - iOS Safari manual install guidance fallback
+- Update lifecycle handling:
+  - `VERSION_READY` banner with dismiss-by-hash persistence
+  - proactive update checks on startup, online re-entry, visibility return, and periodic interval
+  - unrecoverable SW state banner with reload action
+- Refactor progress:
+  - Import, Review (Dashboard), and Organize views moved from large inline templates to external `html/scss`
+  - duplicate-metrics logic centralized in `core/analysis/duplicate-metrics.ts`
+- Test coverage extended for PWA service behavior and duplicate metrics helper.
+
+Remaining in this sprint:
+- Add a lightweight PWA QA checklist doc for manual validation on desktop + mobile install paths.
+- Optional: split app-shell PWA banners into a dedicated presentational component to keep root shell lean.
+
 ## Definition of Done
 - `rush build`, `rush lint`, `rush test`, `rush typecheck` pass
 - Manual QA:
