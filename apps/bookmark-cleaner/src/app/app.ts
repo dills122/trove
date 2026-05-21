@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
+import { EnvironmentSettingsPanelComponent } from './core/components/environment-settings-panel/environment-settings-panel.component';
 import { PwaStatusBannersComponent } from './core/components/pwa-status-banners/pwa-status-banners.component';
 import { PwaService } from './core/services/pwa.service';
 import type { BrowserOption, LanguageOption, OsOption } from './core/store/ui-preferences.store';
@@ -16,7 +16,7 @@ interface WorkflowStep {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, PwaStatusBannersComponent],
+  imports: [RouterOutlet, RouterLink, PwaStatusBannersComponent, EnvironmentSettingsPanelComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -66,24 +66,6 @@ export class App {
 
   isStepComplete(stepId: number): boolean {
     return this.currentStep() > stepId;
-  }
-
-  setOs(os: string): void {
-    if (os === 'windows' || os === 'mac' || os === 'linux' || os === 'mobile') {
-      this.uiPreferences.setOs(os);
-    }
-  }
-
-  setLanguage(language: string): void {
-    if (language === 'en' || language === 'es' || language === 'fr' || language === 'de') {
-      this.uiPreferences.setLanguage(language);
-    }
-  }
-
-  setBrowser(browser: string): void {
-    if (browser === 'chrome' || browser === 'edge' || browser === 'firefox' || browser === 'safari') {
-      this.uiPreferences.setBrowser(browser);
-    }
   }
 
   openConfig(): void {
