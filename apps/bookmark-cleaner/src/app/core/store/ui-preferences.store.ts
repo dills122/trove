@@ -6,13 +6,14 @@ import {
   detectPlatformKind,
   type PlatformKind,
 } from '../utils/platform-shortcuts';
-import { readJsonFromStorage, writeJsonToStorage } from './store-persistence';
+import { createLocalStorageJsonAdapter } from './store-persistence';
 
 export type LanguageOption = 'en' | 'es' | 'fr' | 'de';
 export type BrowserOption = 'chrome' | 'edge' | 'firefox' | 'safari';
 export type OsOption = 'windows' | 'mac' | 'linux' | 'mobile';
 
 const STORAGE_KEY = 'trove-ui-preferences';
+const persistence = createLocalStorageJsonAdapter<UiPreferencesState>(STORAGE_KEY);
 
 interface UiPreferencesState {
   language: LanguageOption;
@@ -51,7 +52,7 @@ const isValidState = (value: Partial<UiPreferencesState>): value is UiPreference
   (value.browser === 'chrome' || value.browser === 'edge' || value.browser === 'firefox' || value.browser === 'safari');
 
 const loadPersistedState = (): UiPreferencesState | null => {
-  const parsed = readJsonFromStorage<Partial<UiPreferencesState>>(STORAGE_KEY);
+  const parsed = persistence.read() as Partial<UiPreferencesState> | null;
   if (!parsed || !isValidState(parsed)) {
     return null;
   }
@@ -59,7 +60,7 @@ const loadPersistedState = (): UiPreferencesState | null => {
 };
 
 const persistState = (state: UiPreferencesState): void => {
-  writeJsonToStorage(STORAGE_KEY, state);
+  persistence.write(state);
 };
 
 export const UiPreferencesStore = signalStore(

@@ -1,18 +1,23 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import type { BookmarkWorkspaceSnapshot } from '../models/bookmark.models';
-import { appDb } from '../storage/app-db';
-
-const DEFAULT_WORKSPACE_ID = 'active-workspace';
+import type { AsyncStatus } from './foundation/store-contracts';
+import { workspacePersistenceAdapter } from './workspace-persistence';
 
 interface WorkspaceState {
   snapshot: BookmarkWorkspaceSnapshot | null;
   isProcessing: boolean;
+  loadStatus: AsyncStatus;
+  saveStatus: AsyncStatus;
+  error: string | null;
 }
 
 const initialState: WorkspaceState = {
   snapshot: null,
   isProcessing: false,
+  loadStatus: 'idle',
+  saveStatus: 'idle',
+  error: null,
 };
 
 export const WorkspaceStore = signalStore(
@@ -23,27 +28,24 @@ export const WorkspaceStore = signalStore(
   })),
   withMethods((store) => ({
     async load(): Promise<void> {
+      patchState(store, { loadStatus: 'loading', error: null });
       try {
-        const workspace = await appDb.workspaces.get(DEFAULT_WORKSPACE_ID);
-        if (workspace) {
-          patchState(store, { snapshot: workspace.snapshot });
-        }
+        const snapshot = await workspacePersistenceAdapter.read();
+        patchState(store, { snapshot, loadStatus: 'success' });
       } catch {
         // Dexie may be unavailable in non-browser test environments.
+        patchState(store, { loadStatus: 'error', error: 'Failed to load workspace snapshot.' });
       }
     },
 
     async save(snapshot: BookmarkWorkspaceSnapshot): Promise<void> {
-      const now = new Date().toISOString();
+      patchState(store, { saveStatus: 'loading', error: null });
       try {
-        await appDb.workspaces.put({
-          id: DEFAULT_WORKSPACE_ID,
-          createdAt: now,
-          updatedAt: now,
-          snapshot,
-        });
+        await workspacePersistenceAdapter.write(snapshot);
+        patchState(store, { saveStatus: 'success' });
       } catch {
         // Save failures should not crash the import flow; memory state still updates.
+        patchState(store, { saveStatus: 'error', error: 'Failed to persist workspace snapshot.' });
       }
       patchState(store, { snapshot });
     },

@@ -1,3 +1,5 @@
+import type { PersistenceAdapter } from './foundation/persistence-adapter';
+
 export const readJsonFromStorage = <T>(key: string): T | null => {
   if (typeof localStorage === 'undefined') {
     return null;
@@ -26,3 +28,8 @@ export const writeJsonToStorage = <T>(key: string, value: T): boolean => {
     return false;
   }
 };
+
+export const createLocalStorageJsonAdapter = <T>(key: string): PersistenceAdapter<T> => ({
+  read: () => readJsonFromStorage<T>(key),
+  write: (value) => writeJsonToStorage(key, value),
+});
