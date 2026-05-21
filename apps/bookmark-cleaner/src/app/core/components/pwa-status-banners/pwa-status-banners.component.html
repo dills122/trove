@@ -29,3 +29,11 @@
     </div>
   </div>
 }
+@if (updateStatusMessage(); as message) {
+  <div class="flex items-center justify-between gap-2 rounded-lg border border-indigo-400/30 bg-indigo-500/10 px-3 py-2 text-xs text-indigo-100">
+    <span>{{ message }}</span>
+    <button type="button" class="rounded-md border border-white/20 px-2 py-1 text-[11px]" (click)="dismissUpdateStatus.emit()">
+      Dismiss
+    </button>
+  </div>
+}

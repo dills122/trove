@@ -34,11 +34,11 @@ describe('PwaService', () => {
     window.dispatchEvent(event);
   };
 
-  const createService = (): PwaService => {
+  const createService = (isEnabled = true): PwaService => {
     versionEvents = new Subject<VersionEvent>();
     unrecoverableEvents = new Subject<{ reason: string }>();
     swUpdateMock = {
-      isEnabled: true,
+      isEnabled,
       versionUpdates: versionEvents,
       unrecoverable: unrecoverableEvents,
       activateUpdate: jest.fn().mockResolvedValue(undefined),
@@ -86,16 +86,14 @@ describe('PwaService', () => {
     expect(service.installSupported()).toBe(true);
   });
 
-  it('persists install prompt dismissal', () => {
+  it('keeps install available after a dismissed native prompt', async () => {
     const service = createService();
 
-    dispatchBeforeInstallPrompt();
+    dispatchBeforeInstallPrompt('dismissed');
     expect(service.installSupported()).toBe(true);
 
-    service.dismissInstallPrompt();
-
+    await service.promptInstall();
     expect(service.installSupported()).toBe(false);
-    expect(localStorage.getItem('trove-pwa-install-dismissed')).toBe('1');
   });
 
   it('shows update banner on VERSION_READY unless dismissed for that hash', () => {
@@ -169,5 +167,38 @@ describe('PwaService', () => {
     expect(service.installSupported()).toBe(false);
     expect(service.shouldShowManualInstallHint()).toBe(true);
     expect(service.manualInstallHint()).toContain('Add to Home Screen');
+  });
+
+  it('shows a dev-mode message when update checks are unavailable', async () => {
+    const service = createService(false);
+
+    await service.checkForUpdates({ manual: true });
+    expect(service.updateStatusMessage()).toBe('Update checks are unavailable in local dev mode.');
+  });
+
+  it('shows no-update status message for manual checks and clears it after timeout', async () => {
+    const service = createService();
+    await Promise.resolve();
+
+    await service.checkForUpdates({ manual: true });
+    expect(service.updateStatusMessage()).toBe('No updates found. You are on the latest version.');
+
+    jest.advanceTimersByTime(6000);
+    expect(service.updateStatusMessage()).toBeNull();
+  });
+
+  it('applies manual check cooldown to prevent spamming', async () => {
+    const service = createService();
+    await Promise.resolve();
+    expect(service.canManualCheckForUpdate()).toBe(true);
+
+    await service.checkForUpdates({ manual: true });
+    expect(service.canManualCheckForUpdate()).toBe(false);
+
+    await service.checkForUpdates({ manual: true });
+    expect(service.updateStatusMessage()).toContain('cooldown');
+
+    jest.advanceTimersByTime(20000);
+    expect(service.canManualCheckForUpdate()).toBe(true);
   });
 });

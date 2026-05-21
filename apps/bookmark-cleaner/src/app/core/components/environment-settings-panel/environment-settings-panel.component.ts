@@ -18,6 +18,7 @@ export class EnvironmentSettingsPanelComponent {
   readonly browserOptions = input<BrowserOption[]>(['chrome', 'edge', 'firefox', 'safari']);
   readonly languageOptions = input<LanguageOption[]>(['en', 'es', 'fr', 'de']);
   readonly osOptions = input<OsOption[]>(['windows', 'mac', 'linux', 'mobile']);
+  readonly installSupported = input(false);
 
   readonly closePanel = output<void>();
   readonly applyChanges = output<void>();
@@ -25,6 +26,7 @@ export class EnvironmentSettingsPanelComponent {
   readonly browserChange = output<string>();
   readonly languageChange = output<string>();
   readonly osChange = output<string>();
+  readonly installRequest = output<void>();
 
   browserLabel(browser: string): string {
     if (browser === 'edge') {

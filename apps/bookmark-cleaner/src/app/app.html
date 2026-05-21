@@ -13,7 +13,9 @@
         [updateAvailable]="pwa.updateAvailable()"
         [unrecoverableReason]="pwa.unrecoverableState()"
         [manualInstallHint]="pwa.shouldShowManualInstallHint() ? pwa.manualInstallHint() : null"
+        [updateStatusMessage]="pwa.updateStatusMessage()"
         (dismissUpdate)="pwa.dismissUpdateBanner()"
+        (dismissUpdateStatus)="pwa.dismissUpdateStatusMessage()"
         (reloadForUpdate)="applyUpdate()"
       />
       <div class="flex items-start justify-between gap-3">
@@ -49,33 +51,33 @@
             </div>
           </div>
           @if (pwa.installSupported()) {
-            <div class="inline-flex items-center gap-1">
-              <button
-                type="button"
-                class="inline-flex h-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 text-xs font-medium text-emerald-100 hover:bg-emerald-400/20"
-                (click)="installApp()"
-                aria-label="Install app"
-              >
-                Install
-              </button>
-              <button
-                type="button"
-                class="inline-flex h-9 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs text-slate-300 hover:bg-white/10"
-                (click)="pwa.dismissInstallPrompt()"
-                aria-label="Dismiss install prompt"
-              >
-                ×
-              </button>
-            </div>
+            <button
+              type="button"
+              class="hidden h-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-2.5 text-xs font-medium text-emerald-100 hover:bg-emerald-400/20 sm:inline-flex"
+              (click)="installApp()"
+              aria-label="Install app"
+            >
+              Install
+            </button>
           }
           <button
             type="button"
             class="inline-flex h-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2.5 text-xs text-slate-300 hover:bg-white/10"
-            [disabled]="pwa.isCheckingForUpdate() || !pwa.isOnline()"
+            [disabled]="!pwa.canManualCheckForUpdate()"
             (click)="checkForUpdates()"
             aria-label="Check for app updates"
           >
-            {{ pwa.isCheckingForUpdate() ? 'Checking…' : 'Check update' }}
+            {{
+              pwa.isCheckingForUpdate()
+                ? 'Checking…'
+                : !pwa.updateChecksSupported
+                  ? 'Dev mode'
+                : !pwa.isOnline()
+                  ? 'Offline'
+                  : pwa.canManualCheckForUpdate()
+                    ? 'Check update'
+                    : 'Wait…'
+            }}
           </button>
           <button
             type="button"
@@ -116,9 +118,11 @@
     [browserOptions]="browserOptions"
     [languageOptions]="languageOptions"
     [osOptions]="osOptions"
+    [installSupported]="pwa.installSupported()"
     (browserChange)="setDraftBrowser($event)"
     (languageChange)="setDraftLanguage($event)"
     (osChange)="setDraftOs($event)"
+    (installRequest)="installApp()"
     (resetDefaults)="resetConfigToDetected()"
     (closePanel)="closeConfig()"
     (applyChanges)="applyConfig()"

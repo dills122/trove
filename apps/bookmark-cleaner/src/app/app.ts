@@ -187,6 +187,6 @@ export class App {
   }
 
   checkForUpdates(): void {
-    void this.pwa.checkForUpdates();
+    void this.pwa.checkForUpdates({ manual: true });
   }
 }
