@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { detectDuplicateGroups } from '../../core/analysis/duplicate-detection';
+import { calculateDuplicateMetrics } from '../../core/analysis/duplicate-metrics';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 
 @Component({
@@ -63,25 +63,18 @@ export class DashboardPageComponent {
     () => (this.store.snapshot()?.analysis.topRegistrableDomains.length ?? 0) > this.mobileListLimit,
   );
 
-  readonly duplicateGroups = computed(() => {
+  readonly duplicateMetrics = computed(() => {
     const snapshot = this.store.snapshot();
     if (!snapshot) {
-      return [];
+      return calculateDuplicateMetrics([]);
     }
-    return detectDuplicateGroups(snapshot.bookmarks);
+    return calculateDuplicateMetrics(snapshot.bookmarks);
   });
 
-  readonly duplicateLinksCount = computed(() =>
-    this.duplicateGroups().reduce((sum, group) => sum + group.items.length, 0),
-  );
-
-  readonly potentialRemovals = computed(() =>
-    this.duplicateGroups().reduce((sum, group) => sum + Math.max(0, group.items.length - 1), 0),
-  );
-
-  readonly largestDuplicateGroup = computed(() =>
-    this.duplicateGroups().reduce((max, group) => Math.max(max, group.items.length), 0),
-  );
+  readonly duplicateGroups = computed(() => this.duplicateMetrics().groups);
+  readonly duplicateLinksCount = computed(() => this.duplicateMetrics().linksCount);
+  readonly potentialRemovals = computed(() => this.duplicateMetrics().potentialRemovals);
+  readonly largestDuplicateGroup = computed(() => this.duplicateMetrics().largestGroupSize);
 
   readonly duplicateCoveragePercent = computed(() => {
     const total = this.store.snapshot()?.analysis.totalBookmarks ?? 0;
@@ -91,13 +84,8 @@ export class DashboardPageComponent {
     return Math.round((this.duplicateLinksCount() / total) * 100);
   });
 
-  readonly exactDuplicateGroupCount = computed(
-    () => this.duplicateGroups().filter((group) => group.reason === 'NORMALIZED_URL').length,
-  );
-
-  readonly intentDuplicateGroupCount = computed(
-    () => this.duplicateGroups().filter((group) => group.reason === 'HOST_AND_TITLE').length,
-  );
+  readonly exactDuplicateGroupCount = computed(() => this.duplicateMetrics().exactGroupCount);
+  readonly intentDuplicateGroupCount = computed(() => this.duplicateMetrics().hostTitleGroupCount);
 
   readonly hostDiversity = computed(() => {
     const snapshot = this.store.snapshot();

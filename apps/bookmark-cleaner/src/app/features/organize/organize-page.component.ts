@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { detectDuplicateGroups } from '../../core/analysis/duplicate-detection';
+import { calculateDuplicateMetrics } from '../../core/analysis/duplicate-metrics';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 
 @Component({
@@ -14,23 +14,16 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
 export class OrganizePageComponent {
   readonly store = inject(WorkspaceStore);
 
-  readonly duplicateGroups = computed(() => {
+  readonly duplicateMetrics = computed(() => {
     const snapshot = this.store.snapshot();
     if (!snapshot) {
-      return [];
+      return calculateDuplicateMetrics([]);
     }
-    return detectDuplicateGroups(snapshot.bookmarks);
+    return calculateDuplicateMetrics(snapshot.bookmarks);
   });
 
-  readonly duplicateLinksCount = computed(() =>
-    this.duplicateGroups().reduce((sum, group) => sum + group.items.length, 0),
-  );
-
-  readonly exactMatchGroupCount = computed(
-    () => this.duplicateGroups().filter((group) => group.reason === 'NORMALIZED_URL').length,
-  );
-
-  readonly hostTitleGroupCount = computed(
-    () => this.duplicateGroups().filter((group) => group.reason === 'HOST_AND_TITLE').length,
-  );
+  readonly duplicateGroups = computed(() => this.duplicateMetrics().groups);
+  readonly duplicateLinksCount = computed(() => this.duplicateMetrics().linksCount);
+  readonly exactMatchGroupCount = computed(() => this.duplicateMetrics().exactGroupCount);
+  readonly hostTitleGroupCount = computed(() => this.duplicateMetrics().hostTitleGroupCount);
 }
