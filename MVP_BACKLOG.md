@@ -51,6 +51,19 @@ Acceptance criteria:
 - user can mark resolution actions
 - original snapshot remains unchanged
 
+### C5. Organize decision engine + action log
+Acceptance criteria:
+- duplicate groups carry review status (`unreviewed/accepted/rejected/modified/ignored`)
+- actions are captured as replayable history entries
+- undo/redo works across group and bulk actions
+- projected impact counters derive from action history
+
+### C6. Bulk exact-group operations
+Acceptance criteria:
+- user can apply strategy to all exact duplicate groups
+- impact confirmation is shown before apply
+- bulk actions are undoable
+
 ## Epic D: Organization and Rules
 
 ### D1. Global category rule model
@@ -69,6 +82,12 @@ Acceptance criteria:
 Acceptance criteria:
 - cleaned and original exports generated
 - default filename includes timestamp
+- cleaned export is generated from source snapshot + accepted decision patches
+
+### E3. Export cleanup toggles
+Acceptance criteria:
+- empty-folder cleanup is configurable at export time
+- preview and final export stay consistent with selected toggles
 
 ### E2. Export format strategy
 Acceptance criteria:
@@ -150,3 +169,16 @@ Acceptance criteria:
 - no high-traffic route component exceeds agreed size threshold
 - orchestration logic extracted to focused services
 - tests updated for extracted logic paths
+
+## Epic I: State Management Foundation
+
+### I1. NgRx Signal Store adoption for organize flow
+Acceptance criteria:
+- `OrganizeStore` created using NgRx Signal Store
+- organize selectors/computed state exposed via store
+- UI consumes store without direct mutation logic in components
+
+### I2. Organize reducer/replay tests
+Acceptance criteria:
+- action log replay produces deterministic outcomes
+- undo/redo behavior is covered by unit tests

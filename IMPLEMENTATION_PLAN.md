@@ -56,13 +56,20 @@ Duration: 3-4 days
 Deliverables:
 - exact duplicate grouping
 - possible duplicate grouping (`http`/`https` variants)
-- user action model and preview impact
+- organize decision/action-log model and preview impact
+- per-group actions:
+  - keep newest/oldest/selected
+  - remove selected
+  - keep all / skip
+- bulk strategy apply for exact groups
 - duplicate intent analytics:
   - host+title “possible intent” clusters
   - potential removal and duplicate coverage summaries
+- undo/redo over decision history
 
 Exit criteria:
 - user can resolve duplicates without mutating original snapshot
+- projected export impact updates deterministically from decisions
 
 ### Milestone 4: Organization Rules
 Duration: 3-5 days
@@ -82,6 +89,8 @@ Deliverables:
 - export original and cleaned outputs
 - standardized auto filename
 - compatibility verification with Chrome import
+- materialization pipeline from source snapshot + accepted patches/decisions
+- optional empty-folder cleanup toggle
 
 Exit criteria:
 - exported HTML imports back into Chrome successfully
@@ -104,6 +113,11 @@ Exit criteria:
 - chunked processing and result persistence validated
 
 ## 3. Cross-Cutting Workstreams
+
+### 3.0 State Management
+- adopt NgRx Signal Store for feature stores in MVP
+- keep organize logic as action-log + derived selectors
+- avoid full global NgRx Store/Effects until complexity thresholds are hit
 
 ### 3.1 UX & Product Quality
 - warning clarity and user confidence messaging
