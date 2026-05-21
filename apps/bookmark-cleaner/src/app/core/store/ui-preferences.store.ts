@@ -1,10 +1,12 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
 import {
   detectBrowserKind,
   detectLanguageKind,
   detectPlatformKind,
   type PlatformKind,
 } from '../utils/platform-shortcuts';
+import { readJsonFromStorage, writeJsonToStorage } from './store-persistence';
 
 export type LanguageOption = 'en' | 'es' | 'fr' | 'de';
 export type BrowserOption = 'chrome' | 'edge' | 'firefox' | 'safari';
@@ -31,7 +33,7 @@ const mapPlatformToOs = (platform: PlatformKind): OsOption => {
   }
 };
 
-const initialState = (): UiPreferencesState => ({
+const createDetectedDefaults = (): UiPreferencesState => ({
   language: detectLanguageKind(),
   browser: detectBrowserKind(),
   os: mapPlatformToOs(detectPlatformKind()),
@@ -41,82 +43,60 @@ export const getDetectedUiPreferences = (): {
   language: LanguageOption;
   browser: BrowserOption;
   os: OsOption;
-} => initialState();
+} => createDetectedDefaults();
 
-@Injectable({ providedIn: 'root' })
-export class UiPreferencesStore {
-  private readonly state = signal<UiPreferencesState>(initialState());
+const isValidState = (value: Partial<UiPreferencesState>): value is UiPreferencesState =>
+  (value.os === 'windows' || value.os === 'mac' || value.os === 'linux' || value.os === 'mobile') &&
+  (value.language === 'en' || value.language === 'es' || value.language === 'fr' || value.language === 'de') &&
+  (value.browser === 'chrome' || value.browser === 'edge' || value.browser === 'firefox' || value.browser === 'safari');
 
-  readonly language = computed(() => this.state().language);
-  readonly browser = computed(() => this.state().browser);
-  readonly os = computed(() => this.state().os);
-
-  public constructor() {
-    this.load();
+const loadPersistedState = (): UiPreferencesState | null => {
+  const parsed = readJsonFromStorage<Partial<UiPreferencesState>>(STORAGE_KEY);
+  if (!parsed || !isValidState(parsed)) {
+    return null;
   }
+  return parsed;
+};
 
-  setOs(os: OsOption): void {
-    this.state.update((current) => ({ ...current, os }));
-    this.save();
-  }
+const persistState = (state: UiPreferencesState): void => {
+  writeJsonToStorage(STORAGE_KEY, state);
+};
 
-  setLanguage(language: LanguageOption): void {
-    this.state.update((current) => ({ ...current, language }));
-    this.save();
-  }
-
-  setBrowser(browser: BrowserOption): void {
-    this.state.update((current) => ({ ...current, browser }));
-    this.save();
-  }
-
-  setAll(next: UiPreferencesState): void {
-    this.state.set(next);
-    this.save();
-  }
-
-  resetToDetectedDefaults(): void {
-    this.state.set(initialState());
-    this.save();
-  }
-
-  private load(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        return;
+export const UiPreferencesStore = signalStore(
+  { providedIn: 'root' },
+  withState<UiPreferencesState>(createDetectedDefaults()),
+  withComputed(({ language, browser, os }) => ({
+    summary: computed(() => `${browser()} on ${os()} · ${language()}`),
+  })),
+  withMethods((store) => ({
+    setOs(os: OsOption): void {
+      patchState(store, { os });
+      persistState({ language: store.language(), browser: store.browser(), os: store.os() });
+    },
+    setLanguage(language: LanguageOption): void {
+      patchState(store, { language });
+      persistState({ language: store.language(), browser: store.browser(), os: store.os() });
+    },
+    setBrowser(browser: BrowserOption): void {
+      patchState(store, { browser });
+      persistState({ language: store.language(), browser: store.browser(), os: store.os() });
+    },
+    setAll(next: UiPreferencesState): void {
+      patchState(store, next);
+      persistState({ language: store.language(), browser: store.browser(), os: store.os() });
+    },
+    resetToDetectedDefaults(): void {
+      const detected = createDetectedDefaults();
+      patchState(store, detected);
+      persistState({ language: store.language(), browser: store.browser(), os: store.os() });
+    },
+  })),
+  withHooks({
+    onInit(store) {
+      const persisted = loadPersistedState();
+      if (persisted) {
+        patchState(store, persisted);
       }
-
-      const parsed = JSON.parse(raw) as Partial<UiPreferencesState>;
-      if (
-        (parsed.os === 'windows' || parsed.os === 'mac' || parsed.os === 'linux' || parsed.os === 'mobile') &&
-        (parsed.language === 'en' || parsed.language === 'es' || parsed.language === 'fr' || parsed.language === 'de') &&
-        (parsed.browser === 'chrome' || parsed.browser === 'edge' || parsed.browser === 'firefox' || parsed.browser === 'safari')
-      ) {
-        this.state.set({
-          language: parsed.language,
-          browser: parsed.browser,
-          os: parsed.os,
-        });
-      }
-    } catch {
-      // Keep defaults when parsing storage fails.
-    }
-  }
-
-  private save(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state()));
-    } catch {
-      // Ignore storage write failures.
-    }
-  }
-}
+    },
+  }),
+);
