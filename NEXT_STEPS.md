@@ -2,10 +2,10 @@
 
 ## Immediate
 
-1. Execute `SPRINT_PWA_REFACTOR_PLAN.md` as active sprint.
-2. Implement PWA foundation: manifest, service worker wiring, install/update UX.
-3. Add offline-state UX and validate offline review workflow.
-4. Refactor oversized route components/templates, starting with import flow decomposition.
+1. Implement `OrganizeStore` using NgRx Signal Store on top of the new store foundation utilities.
+2. Add organize action-log + undo/redo primitives to drive deterministic duplicate-review decisions.
+3. Wire organize UI actions (`keep newest/oldest/selected`, `remove selected`, `skip`) to derived projected impact.
+4. Materialize export from source snapshot + accepted decision patches.
 
 ## Backend Follow-Up
 
@@ -17,3 +17,4 @@
 
 1. Add Lighthouse/PWA checks to CI for installability and offline baseline validation.
 2. Add component/template complexity guardrails to lint or PR checklist.
+3. Add store-convention checklist (state shape, persistence, action-log tests) to PR template.
