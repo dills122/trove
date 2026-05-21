@@ -2,6 +2,7 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
+import { PwaStatusBannersComponent } from './core/components/pwa-status-banners/pwa-status-banners.component';
 import { PwaService } from './core/services/pwa.service';
 import type { BrowserOption, LanguageOption, OsOption } from './core/store/ui-preferences.store';
 import { getDetectedUiPreferences, UiPreferencesStore } from './core/store/ui-preferences.store';
@@ -15,7 +16,7 @@ interface WorkflowStep {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule],
+  imports: [RouterOutlet, RouterLink, FormsModule, PwaStatusBannersComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

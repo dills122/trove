@@ -1,0 +1,31 @@
+@if (!isOnline()) {
+  <div class="rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+    Offline mode: local review features remain available.
+  </div>
+}
+@if (unrecoverableReason(); as reason) {
+  <div class="flex items-center justify-between gap-2 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
+    <span>App update issue detected ({{ reason }}). Reload to recover.</span>
+    <button type="button" class="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-slate-950" (click)="reloadForUpdate.emit()">
+      Reload now
+    </button>
+  </div>
+}
+@if (manualInstallHint(); as hint) {
+  <div class="rounded-lg border border-sky-400/30 bg-sky-500/10 px-3 py-2 text-xs text-sky-100">
+    {{ hint }}
+  </div>
+}
+@if (updateAvailable()) {
+  <div class="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">
+    <span>Update available.</span>
+    <div class="flex items-center gap-2">
+      <button type="button" class="rounded-md border border-white/20 px-2 py-1 text-[11px]" (click)="dismissUpdate.emit()">
+        Later
+      </button>
+      <button type="button" class="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-slate-950" (click)="reloadForUpdate.emit()">
+        Reload
+      </button>
+    </div>
+  </div>
+}
