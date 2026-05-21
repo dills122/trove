@@ -25,6 +25,8 @@ Trove is a local-first bookmark cleanup app. Import a browser bookmark export, a
    - `node common/scripts/install-run-rush.js build`
 3. Run the web app locally:
    - `npm run dev:web`
+4. (Optional) Run the worker locally:
+   - `npm run dev:worker`
 
 ## Common Commands
 
@@ -40,6 +42,11 @@ Trove is a local-first bookmark cleanup app. Import a browser bookmark export, a
 - Workflow: `.github/workflows/pages-deploy.yml`
 - Publishes the web app build to `gh-pages`
 - Supports custom domain through repository variable `PAGES_CNAME`
+
+## PWA QA
+
+- Manual install/update/offline verification checklist:
+  - `PWA_QA_CHECKLIST.md`
 
 ## Planning and Design Docs
 
