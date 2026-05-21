@@ -2,6 +2,8 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
+import { PwaStatusBannersComponent } from './core/components/pwa-status-banners/pwa-status-banners.component';
+import { PwaService } from './core/services/pwa.service';
 import type { BrowserOption, LanguageOption, OsOption } from './core/store/ui-preferences.store';
 import { getDetectedUiPreferences, UiPreferencesStore } from './core/store/ui-preferences.store';
 import { WorkspaceStore } from './core/store/workspace.store';
@@ -14,7 +16,7 @@ interface WorkflowStep {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule],
+  imports: [RouterOutlet, RouterLink, FormsModule, PwaStatusBannersComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -22,6 +24,7 @@ export class App {
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly router = inject(Router);
   readonly uiPreferences = inject(UiPreferencesStore);
+  readonly pwa = inject(PwaService);
 
   readonly steps: WorkflowStep[] = [
     { id: 1, label: 'Import', path: '/import' },
@@ -191,5 +194,17 @@ export class App {
     }
 
     this.currentStep.set(1);
+  }
+
+  installApp(): void {
+    void this.pwa.promptInstall();
+  }
+
+  applyUpdate(): void {
+    void this.pwa.applyUpdate();
+  }
+
+  checkForUpdates(): void {
+    void this.pwa.checkForUpdates();
   }
 }

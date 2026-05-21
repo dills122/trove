@@ -268,6 +268,9 @@ This sprint establishes production-ready PWA foundations and reduces architectur
 - app-shell and asset caching strategy
 - offline-state UX messaging and behavior expectations
 - update prompt flow for newly deployed versions
+- proactive update checks (startup, online re-entry, tab visibility return, periodic interval)
+- unrecoverable service worker recovery banner/flow
+- iOS Safari manual install guidance fallback when `beforeinstallprompt` is unavailable
 
 ### 16.2 Refactor Outcomes
 - break large inline templates into dedicated component templates/styles
