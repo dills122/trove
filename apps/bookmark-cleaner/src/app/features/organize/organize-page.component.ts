@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { DecisionStrategy } from '../../core/store/organize.store';
 import { OrganizeStore } from '../../core/store/organize.store';
 import { WorkspaceStore } from '../../core/store/workspace.store';
+import type { DuplicateGroup } from '../../core/analysis/duplicate-detection';
 
 @Component({
   selector: 'app-organize-page',
@@ -15,11 +16,34 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
 export class OrganizePageComponent {
   readonly workspaceStore = inject(WorkspaceStore);
   readonly organizeStore = inject(OrganizeStore);
+  readonly statusFilter = signal<'all' | 'unreviewed' | 'reviewed' | 'skipped'>('all');
+  readonly selectedByGroup = signal<Record<string, string[]>>({});
+
+  readonly filteredGroups = computed(() => {
+    const filter = this.statusFilter();
+    const groups = this.organizeStore.groups();
+    const decisions = this.organizeStore.decisions();
+
+    if (filter === 'all') {
+      return groups;
+    }
+
+    if (filter === 'unreviewed') {
+      return groups.filter((group) => !decisions[group.id]);
+    }
+
+    if (filter === 'skipped') {
+      return groups.filter((group) => decisions[group.id]?.strategy === 'skip');
+    }
+
+    return groups.filter((group) => !!decisions[group.id] && decisions[group.id].strategy !== 'skip');
+  });
 
   public constructor() {
     effect(() => {
       const bookmarks = this.workspaceStore.snapshot()?.bookmarks ?? [];
       this.organizeStore.initializeFromBookmarks(bookmarks);
+      this.selectedByGroup.set({});
     });
   }
 
@@ -58,5 +82,36 @@ export class OrganizePageComponent {
     }
 
     return 'Reviewed';
+  }
+
+  setStatusFilter(value: 'all' | 'unreviewed' | 'reviewed' | 'skipped'): void {
+    this.statusFilter.set(value);
+  }
+
+  isSelected(groupId: string, bookmarkId: string): boolean {
+    return (this.selectedByGroup()[groupId] ?? []).includes(bookmarkId);
+  }
+
+  toggleSelected(groupId: string, bookmarkId: string): void {
+    const current = this.selectedByGroup();
+    const existing = current[groupId] ?? [];
+    const next = existing.includes(bookmarkId)
+      ? existing.filter((id) => id !== bookmarkId)
+      : [...existing, bookmarkId];
+
+    this.selectedByGroup.set({
+      ...current,
+      [groupId]: next,
+    });
+  }
+
+  applyKeepSelected(group: DuplicateGroup): void {
+    const selected = this.selectedByGroup()[group.id] ?? [];
+    this.organizeStore.keepSelected(group.id, selected);
+  }
+
+  applyRemoveSelected(group: DuplicateGroup): void {
+    const selected = this.selectedByGroup()[group.id] ?? [];
+    this.organizeStore.removeSelected(group.id, selected);
   }
 }

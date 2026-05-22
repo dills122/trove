@@ -23,6 +23,8 @@ export interface GroupDecision {
 
 export type OrganizeAction =
   | { type: 'APPLY_STRATEGY'; groupId: string; strategy: DecisionStrategy }
+  | { type: 'KEEP_SELECTED'; groupId: string; keptIds: string[] }
+  | { type: 'REMOVE_SELECTED'; groupId: string; removedIds: string[] }
   | { type: 'RESET_GROUP'; groupId: string }
   | { type: 'BULK_APPLY_EXACT'; strategy: Exclude<DecisionStrategy, 'skip'> }
   | { type: 'UNDO' }
@@ -134,6 +136,67 @@ export const OrganizeStore = signalStore(
       patchState(store, {
         decisionHistory: pushHistory(store.decisionHistory(), nextDecisions),
         actionLog: [...store.actionLog(), { type: 'APPLY_STRATEGY', groupId, strategy }],
+      });
+    },
+
+    keepSelected(groupId: string, keptIds: string[]): void {
+      const group = store.groups().find((item) => item.id === groupId);
+      if (!group || keptIds.length === 0) {
+        return;
+      }
+
+      const validKept = group.items.map((item) => item.id).filter((id) => keptIds.includes(id));
+      if (validKept.length === 0) {
+        return;
+      }
+
+      const nextDecision: GroupDecision = {
+        groupId,
+        status: 'modified',
+        strategy: 'keep_all',
+        keptIds: validKept,
+        removedIds: group.items.map((item) => item.id).filter((id) => !validKept.includes(id)),
+      };
+
+      const nextDecisions = {
+        ...store.decisionHistory().present,
+        [groupId]: nextDecision,
+      };
+
+      patchState(store, {
+        decisionHistory: pushHistory(store.decisionHistory(), nextDecisions),
+        actionLog: [...store.actionLog(), { type: 'KEEP_SELECTED', groupId, keptIds: validKept }],
+      });
+    },
+
+    removeSelected(groupId: string, removedIds: string[]): void {
+      const group = store.groups().find((item) => item.id === groupId);
+      if (!group || removedIds.length === 0) {
+        return;
+      }
+
+      const validRemoved = group.items.map((item) => item.id).filter((id) => removedIds.includes(id));
+      const keptIds = group.items.map((item) => item.id).filter((id) => !validRemoved.includes(id));
+      if (keptIds.length === 0) {
+        return;
+      }
+
+      const nextDecision: GroupDecision = {
+        groupId,
+        status: 'modified',
+        strategy: 'keep_all',
+        keptIds,
+        removedIds: validRemoved,
+      };
+
+      const nextDecisions = {
+        ...store.decisionHistory().present,
+        [groupId]: nextDecision,
+      };
+
+      patchState(store, {
+        decisionHistory: pushHistory(store.decisionHistory(), nextDecisions),
+        actionLog: [...store.actionLog(), { type: 'REMOVE_SELECTED', groupId, removedIds: validRemoved }],
       });
     },
 

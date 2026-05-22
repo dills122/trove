@@ -55,4 +55,23 @@ describe('OrganizeStore', () => {
     store.redo();
     expect(store.reviewedCount()).toBe(1);
   });
+
+  it('supports keepSelected and removeSelected decisions', () => {
+    const store = TestBed.inject(OrganizeStore);
+    store.initializeFromBookmarks([
+      link('a', 'https://example.com/a', 'example.com', 'A'),
+      link('b', 'https://example.com/a', 'example.com', 'A'),
+      link('c', 'https://example.com/a', 'example.com', 'A'),
+    ]);
+
+    const groupId = store.groups()[0].id;
+
+    store.keepSelected(groupId, ['a', 'c']);
+    expect(store.decisions()[groupId].keptIds).toEqual(['a', 'c']);
+    expect(store.decisions()[groupId].removedIds).toEqual(['b']);
+
+    store.removeSelected(groupId, ['c']);
+    expect(store.decisions()[groupId].keptIds).toEqual(['a', 'b']);
+    expect(store.decisions()[groupId].removedIds).toEqual(['c']);
+  });
 });
