@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { calculateDuplicateMetrics } from '../../core/analysis/duplicate-metrics';
+import type { DecisionStrategy } from '../../core/store/organize.store';
+import { OrganizeStore } from '../../core/store/organize.store';
 import { WorkspaceStore } from '../../core/store/workspace.store';
 
 @Component({
@@ -12,18 +13,50 @@ import { WorkspaceStore } from '../../core/store/workspace.store';
   styleUrl: './organize-page.component.scss',
 })
 export class OrganizePageComponent {
-  readonly store = inject(WorkspaceStore);
+  readonly workspaceStore = inject(WorkspaceStore);
+  readonly organizeStore = inject(OrganizeStore);
 
-  readonly duplicateMetrics = computed(() => {
-    const snapshot = this.store.snapshot();
-    if (!snapshot) {
-      return calculateDuplicateMetrics([]);
+  public constructor() {
+    effect(() => {
+      const bookmarks = this.workspaceStore.snapshot()?.bookmarks ?? [];
+      this.organizeStore.initializeFromBookmarks(bookmarks);
+    });
+  }
+
+  applyGroupStrategy(groupId: string, strategy: DecisionStrategy): void {
+    this.organizeStore.applyStrategy(groupId, strategy);
+  }
+
+  resetGroup(groupId: string): void {
+    this.organizeStore.resetGroup(groupId);
+  }
+
+  applyExactToAll(strategy: Exclude<DecisionStrategy, 'skip'>): void {
+    this.organizeStore.bulkApplyExact(strategy);
+  }
+
+  groupDecisionLabel(groupId: string): string {
+    const decision = this.organizeStore.decisions()[groupId];
+    if (!decision) {
+      return 'Unreviewed';
     }
-    return calculateDuplicateMetrics(snapshot.bookmarks);
-  });
 
-  readonly duplicateGroups = computed(() => this.duplicateMetrics().groups);
-  readonly duplicateLinksCount = computed(() => this.duplicateMetrics().linksCount);
-  readonly exactMatchGroupCount = computed(() => this.duplicateMetrics().exactGroupCount);
-  readonly hostTitleGroupCount = computed(() => this.duplicateMetrics().hostTitleGroupCount);
+    if (decision.strategy === 'skip') {
+      return 'Skipped';
+    }
+
+    if (decision.strategy === 'keep_all') {
+      return 'Keep all';
+    }
+
+    if (decision.strategy === 'keep_last') {
+      return 'Keep last';
+    }
+
+    if (decision.strategy === 'keep_first') {
+      return 'Keep first';
+    }
+
+    return 'Reviewed';
+  }
 }

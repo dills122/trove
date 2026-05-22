@@ -9,7 +9,7 @@
     </p>
   </header>
 
-  @if (!store.snapshot()) {
+  @if (!workspaceStore.snapshot()) {
     <section class="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
       <p>No workspace loaded yet.</p>
       <a routerLink="/import" class="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
@@ -18,24 +18,60 @@
     </section>
   }
 
-  @if (store.snapshot()) {
+  @if (workspaceStore.snapshot()) {
     <section class="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4" aria-label="Organize metrics">
       <article class="metric-card">
         <p class="metric-label">Duplicate groups</p>
-        <p class="metric-value">{{ duplicateGroups().length }}</p>
+        <p class="metric-value">{{ organizeStore.groups().length }}</p>
       </article>
       <article class="metric-card">
         <p class="metric-label">Links in groups</p>
-        <p class="metric-value">{{ duplicateLinksCount() }}</p>
+        <p class="metric-value">{{ organizeStore.projectedRemovalCount() }}</p>
       </article>
       <article class="metric-card">
-        <p class="metric-label">Exact URL groups</p>
-        <p class="metric-value">{{ exactMatchGroupCount() }}</p>
+        <p class="metric-label">Reviewed</p>
+        <p class="metric-value">{{ organizeStore.reviewedCount() }}</p>
       </article>
       <article class="metric-card">
-        <p class="metric-label">Host+title groups</p>
-        <p class="metric-value">{{ hostTitleGroupCount() }}</p>
+        <p class="metric-label">Remaining</p>
+        <p class="metric-value">{{ organizeStore.remainingCount() }}</p>
       </article>
+    </section>
+
+    <section class="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-xs text-slate-200">
+      <span class="rounded-full border border-white/15 px-2 py-1">Exact groups: {{ organizeStore.exactGroupsCount() }}</span>
+      <span class="rounded-full border border-white/15 px-2 py-1">Projected removals: {{ organizeStore.projectedRemovalCount() }}</span>
+      <span class="rounded-full border border-white/15 px-2 py-1">Projected kept: {{ organizeStore.projectedKeptCount() }}</span>
+      <button
+        type="button"
+        class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5"
+        (click)="applyExactToAll('keep_first')"
+      >
+        Apply keep-first to exact
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5"
+        (click)="applyExactToAll('keep_last')"
+      >
+        Apply keep-last to exact
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5"
+        [disabled]="!organizeStore.canUndo()"
+        (click)="organizeStore.undo()"
+      >
+        Undo
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5"
+        [disabled]="!organizeStore.canRedo()"
+        (click)="organizeStore.redo()"
+      >
+        Redo
+      </button>
     </section>
 
     <section class="space-y-4 rounded-3xl border border-white/10 bg-slate-900/60 p-4 max-[375px]:p-3.5 sm:p-6">
@@ -46,25 +82,47 @@
         </p>
       </header>
 
-      @if (duplicateGroups().length === 0) {
+      @if (organizeStore.groups().length === 0) {
         <div class="rounded-xl border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-100">
           No duplicate groups detected from current heuristics.
         </div>
       }
 
-      @if (duplicateGroups().length > 0) {
+      @if (organizeStore.groups().length > 0) {
         <div class="space-y-3">
-          @for (group of duplicateGroups().slice(0, 12); track $index) {
+          @for (group of organizeStore.groups().slice(0, 12); track group.id) {
             <article class="rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:p-4">
-              <p class="text-sm font-semibold text-slate-100">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="text-sm font-semibold text-slate-100">
                 {{ group.reason === 'NORMALIZED_URL' ? 'Exact URL match' : 'Host + title match' }}
                 <span class="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">{{ group.items.length }} links</span>
-              </p>
+                </p>
+                <span class="rounded-full border border-white/15 px-2 py-0.5 text-xs text-slate-300">
+                  {{ groupDecisionLabel(group.id) }}
+                </span>
+              </div>
               <ul class="mt-2 space-y-1 text-xs text-slate-300">
                 @for (item of group.items.slice(0, 4); track $index) {
                   <li>{{ item.title }} · {{ item.host }}</li>
                 }
               </ul>
+              <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <button type="button" class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5" (click)="applyGroupStrategy(group.id, 'keep_first')">
+                  Keep first
+                </button>
+                <button type="button" class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5" (click)="applyGroupStrategy(group.id, 'keep_last')">
+                  Keep last
+                </button>
+                <button type="button" class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5" (click)="applyGroupStrategy(group.id, 'keep_all')">
+                  Keep all
+                </button>
+                <button type="button" class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5" (click)="applyGroupStrategy(group.id, 'skip')">
+                  Skip
+                </button>
+                <button type="button" class="rounded-lg border border-white/20 px-2.5 py-1.5 hover:bg-white/5" (click)="resetGroup(group.id)">
+                  Reset
+                </button>
+              </div>
             </article>
           }
         </div>
