@@ -7,6 +7,7 @@ This folder defines enforceable engineering direction for Trove.
 - `repository-steering.md`: repository scope, boundaries, and ownership defaults
 - `angular-architecture-steering.md`: Angular feature architecture, state boundaries, and dependency rules
 - `angular-coding-standards-steering.md`: coding conventions, patterns, and maintainability requirements
+- `bookmark-import-export-steering.md`: untrusted bookmark HTML/XML parsing, URL handling, workers, and safe export
 - `pwa-offline-steering.md`: PWA behavior, offline-first rules, cache/update strategy, and recovery flows
 - `accessibility-wcag22-steering.md`: WCAG 2.2 AA compliance and accessibility quality gates
 - `testing-quality-gates-steering.md`: required test layers, CI gates, and merge criteria
@@ -23,6 +24,7 @@ This folder defines enforceable engineering direction for Trove.
 - If steering files conflict, precedence is:
   1. `security-privacy-steering.md`
   2. `accessibility-wcag22-steering.md`
-  3. `pwa-offline-steering.md`
-  4. architecture/coding files
+  3. `bookmark-import-export-steering.md`
+  4. `pwa-offline-steering.md`
+  5. architecture/coding files
 - PRs that violate MUST rules should not merge.
