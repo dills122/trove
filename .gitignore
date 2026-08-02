@@ -120,3 +120,7 @@ dist-storybook/
 # Heft temporary files
 .cache/
 .heft/
+
+# Local AI Central skill links. These point at a user-specific checkout and are
+# recreated with `npm run codex:links`; never commit the links themselves.
+.codex/skills/

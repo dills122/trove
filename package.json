@@ -7,6 +7,7 @@
     "node": ">=20.14.0 <23.0.0"
   },
   "scripts": {
+    "codex:links": "node scripts/setup-codex-links.mjs",
     "update": "node common/scripts/install-run-rush.js update",
     "build": "node common/scripts/install-run-rush.js build",
     "lint": "node common/scripts/install-run-rush.js lint",
