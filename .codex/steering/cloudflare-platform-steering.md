@@ -61,6 +61,8 @@ MVP environments: `local`, `prod`.
 - Minimize raw URL logging; redact or hash where practical.
 - Enforce CORS policy to expected app origins.
 - Apply basic abuse protections (payload limits, chunk limits, timeout guards).
+- Treat outbound link checks as an SSRF-sensitive capability: allow only HTTP(S), reject unsafe address
+  classes and credentials, revalidate redirects, and cap redirects/concurrency/time/response bytes.
 
 ## SHOULD
 
@@ -85,6 +87,7 @@ MVP environments: `local`, `prod`.
 - Batch checks must tolerate partial upstream failures.
 - Endpoint behavior must be deterministic for identical normalized URL input.
 - Timeouts must be bounded and configurable within safe limits.
+- A failed or unsafe target must not trigger an unbounded HEAD-to-GET retry or return upstream content.
 
 ## SHOULD
 
@@ -108,6 +111,9 @@ MVP environments: `local`, `prod`.
 
 - Add route-level tests for batch/single health endpoints.
 - Validate classification logic through deterministic fixtures.
+- Add platform-representative tests for unsafe target rejection and redirect revalidation; document any
+  Cloudflare runtime limitation that prevents destination-IP validation and use the safest available
+  compensating control.
 - Run build/lint/test/typecheck gates before deploy.
 
 ## SHOULD
