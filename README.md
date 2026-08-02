@@ -32,6 +32,7 @@ Trove is a local-first bookmark cleanup app. Import a browser bookmark export, a
 
 - `npm run dev:web` Run Angular app
 - `npm run dev:worker` Run Cloudflare worker locally
+- `npm run codex:links` Create or refresh local AI Central skill links
 - `npm run build` Build all Rush projects
 - `npm run lint` Run lint checks
 - `npm run test` Run tests
@@ -55,3 +56,18 @@ Trove is a local-first bookmark cleanup app. Import a browser bookmark export, a
 - `MVP_BACKLOG.md`
 - `WORKPLAN.md`
 - `NEXT_STEPS.md`
+
+## Optional AI Central Integration
+
+Trove keeps project-specific instructions and steering in Git. Reusable Codex skills are local
+symlinks and are deliberately ignored so a contributor's filesystem paths are never committed.
+
+If the `ai-central` repository is checked out beside Trove, create or refresh the curated skill links:
+
+```sh
+npm run codex:links
+```
+
+If AI Central lives elsewhere, set `AI_CENTRAL_HOME` to its repository root or `templates` directory.
+Use `npm run codex:links -- --dry-run` to preview the operation. See `.codex/AI_CENTRAL.md` for the
+selection and behavior.
