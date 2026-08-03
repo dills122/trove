@@ -2,10 +2,23 @@
 
 ## Immediate
 
-1. Implement `OrganizeStore` using NgRx Signal Store on top of the new store foundation utilities.
-2. Add organize action-log + undo/redo primitives to drive deterministic duplicate-review decisions.
-3. Wire organize UI actions (`keep newest/oldest/selected`, `remove selected`, `skip`) to derived projected impact.
-4. Materialize export from source snapshot + accepted decision patches.
+The detailed sequence and scope live in `CLEANUP_FLOW_PLAN.md`.
+
+1. Complete Slice 0: version the snapshot/worker contracts and preserve source values, timestamps, stable IDs,
+   and a source revision.
+2. Define typed cleaner proposals, patches, decision batches, conflicts, and the source-plus-decisions materializer.
+3. Complete Slice 1: implement the exact-duplicate worker pipeline and `OrganizeStore` with persistence,
+   projected impact, undo, and redo.
+4. Replace the organize placeholder with duplicate review plus the accepted/rejected/conflicted Changes queue.
+5. Add the Export route only after preview uses the shared materializer.
+
+## Then
+
+1. Add known-tracking-parameter and missing-title cleaners.
+2. Add manual moves, narrow domain category rules, duplicate sibling-folder proposals, and export-time empty-folder
+   pruning.
+3. Finish original/cleaned HTML serialization and adversarial round-trip tests.
+4. Add opt-in health-derived cleaners after the complete local cleanup/export workflow is shippable.
 
 ## Backend Follow-Up
 

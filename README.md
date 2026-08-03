@@ -51,6 +51,7 @@ Trove is a local-first bookmark cleanup app. Import a browser bookmark export, a
 
 ## Planning and Design Docs
 
+- `CLEANUP_FLOW_PLAN.md` — remaining product flow, cleaner catalog, and implementation slices
 - `TECH_DESIGN.md`
 - `IMPLEMENTATION_PLAN.md`
 - `MVP_BACKLOG.md`
