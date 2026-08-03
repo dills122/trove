@@ -1,17 +1,28 @@
 export type BookmarkNode = BookmarkFolder | BookmarkLink;
 
-export interface BookmarkFolder {
+export const BOOKMARK_SNAPSHOT_SCHEMA_VERSION = 1 as const;
+
+export type BookmarkSnapshotSchemaVersion = typeof BOOKMARK_SNAPSHOT_SCHEMA_VERSION;
+
+export interface BookmarkNodeMetadata {
+  importedTitle: string | null;
+  displayTitle: string;
+  /** Compatibility alias for displayTitle while existing consumers migrate. */
+  title: string;
+  addedAt: string | null;
+  lastModifiedAt: string | null;
+}
+
+export interface BookmarkFolder extends BookmarkNodeMetadata {
   id: string;
   type: 'folder';
-  title: string;
   path: string[];
   children: BookmarkNode[];
 }
 
-export interface BookmarkLink {
+export interface BookmarkLink extends BookmarkNodeMetadata {
   id: string;
   type: 'link';
-  title: string;
   url: string;
   normalizedUrl: string;
   domain: string;
@@ -23,7 +34,7 @@ export interface BookmarkLink {
 }
 
 export interface ParseWarning {
-  code: 'MISSING_URL' | 'MISSING_TITLE' | 'MALFORMED_ENTRY';
+  code: 'MISSING_URL' | 'MISSING_TITLE' | 'MALFORMED_ENTRY' | 'MALFORMED_METADATA';
   message: string;
 }
 
@@ -45,6 +56,8 @@ export interface BookmarkAnalysis {
 }
 
 export interface BookmarkWorkspaceSnapshot {
+  schemaVersion: BookmarkSnapshotSchemaVersion;
+  sourceRevision: string;
   originalTree: BookmarkFolder;
   bookmarks: BookmarkLink[];
   analysis: BookmarkAnalysis;
