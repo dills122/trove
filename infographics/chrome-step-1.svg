@@ -1,0 +1,21 @@
+<svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="360" rx="24" fill="#020617"/>
+  <rect x="24" y="24" width="592" height="312" rx="20" fill="#0F172A" stroke="#334155"/>
+  <rect x="48" y="56" width="544" height="36" rx="12" fill="#111827" stroke="#334155"/>
+  <circle cx="72" cy="74" r="6" fill="#22D3EE"/>
+  <circle cx="92" cy="74" r="6" fill="#10B981"/>
+  <circle cx="112" cy="74" r="6" fill="#E2E8F0"/>
+  <rect x="140" y="64" width="300" height="20" rx="10" fill="#1E293B"/>
+  <rect x="48" y="110" width="220" height="190" rx="14" fill="#111827" stroke="#334155"/>
+  <rect x="284" y="110" width="308" height="190" rx="14" fill="#111827" stroke="#334155"/>
+  <rect x="66" y="130" width="180" height="16" rx="8" fill="#22D3EE" fill-opacity="0.35"/>
+  <rect x="66" y="158" width="160" height="12" rx="6" fill="#334155"/>
+  <rect x="66" y="178" width="140" height="12" rx="6" fill="#334155"/>
+  <rect x="66" y="198" width="150" height="12" rx="6" fill="#334155"/>
+  <rect x="302" y="130" width="268" height="14" rx="7" fill="#334155"/>
+  <rect x="302" y="154" width="240" height="14" rx="7" fill="#334155"/>
+  <rect x="302" y="178" width="248" height="14" rx="7" fill="#334155"/>
+  <rect x="302" y="202" width="230" height="14" rx="7" fill="#334155"/>
+  <rect x="302" y="226" width="250" height="14" rx="7" fill="#334155"/>
+  <text x="54" y="46" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="14">Step 1: Open Bookmarks Manager (Ctrl/Cmd + Shift + O)</text>
+</svg>

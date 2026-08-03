@@ -1,0 +1,19 @@
+<svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="360" rx="24" fill="#020617"/>
+  <rect x="24" y="24" width="592" height="312" rx="20" fill="#0F172A" stroke="#334155"/>
+  <rect x="56" y="70" width="250" height="220" rx="16" fill="#111827" stroke="#334155"/>
+  <rect x="80" y="96" width="200" height="16" rx="8" fill="#22D3EE" fill-opacity="0.3"/>
+  <rect x="80" y="126" width="180" height="12" rx="6" fill="#334155"/>
+  <rect x="80" y="146" width="168" height="12" rx="6" fill="#334155"/>
+  <rect x="80" y="166" width="186" height="12" rx="6" fill="#334155"/>
+  <rect x="80" y="196" width="144" height="12" rx="6" fill="#10B981" fill-opacity="0.4"/>
+  <rect x="336" y="70" width="248" height="220" rx="16" fill="#111827" stroke="#334155"/>
+  <rect x="360" y="96" width="160" height="16" rx="8" fill="#334155"/>
+  <rect x="360" y="126" width="200" height="136" rx="10" fill="#0B1220" stroke="#334155"/>
+  <text x="378" y="158" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">bookmarks_2026-05-19.html</text>
+  <rect x="378" y="176" width="164" height="10" rx="5" fill="#334155"/>
+  <rect x="378" y="194" width="148" height="10" rx="5" fill="#334155"/>
+  <rect x="378" y="212" width="156" height="10" rx="5" fill="#334155"/>
+  <rect x="378" y="232" width="98" height="16" rx="8" fill="#22D3EE" fill-opacity="0.35"/>
+  <text x="54" y="46" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="14">Step 3: Export bookmarks, then upload the HTML file into Trove</text>
+</svg>

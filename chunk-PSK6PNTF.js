@@ -1,0 +1,1 @@
+import"./chunk-FDERIQAA.js";var a=()=>{let e=new Worker(new URL("worker-L67GB437.js",import.meta.url),{type:"module"});return{postMessage:r=>e.postMessage(r),setMessageHandler:r=>{e.onmessage=r?({data:o})=>r(o):null},setErrorHandler:r=>{e.onerror=r?o=>r(o.error):null},terminate:()=>e.terminate()}};export{a as createBrowserBookmarkWorker};
