@@ -66,6 +66,8 @@ Deliverables:
   - host+title “possible intent” clusters
   - potential removal and duplicate coverage summaries
 - undo/redo over decision history
+- typed cleaner proposal/patch contracts and source-revision validation
+- worker-based proposal computation rather than route-component analysis
 
 Exit criteria:
 - user can resolve duplicates without mutating original snapshot
@@ -75,12 +77,16 @@ Exit criteria:
 Duration: 3-5 days
 
 Deliverables:
-- global category rules CRUD
-- proposed tree build in worker
-- approve/reject move flow
+- known-tracking-parameter and missing-title cleaner proposals
+- manual move/rename decisions
+- narrow global domain category rules (`host-is`, `registrable-domain-is`)
+- duplicate sibling-folder merge proposals
+- proposed tree materialization in worker
+- approve/reject/modify move flow
 
 Exit criteria:
 - proposed tree preview and selective acceptance are functional
+- decisions persist across refresh and replay deterministically without mutating the source snapshot
 
 ### Milestone 5: Export
 Duration: 2 days

@@ -1,4 +1,5 @@
 import {
+  BOOKMARK_SNAPSHOT_SCHEMA_VERSION,
   type BookmarkFolder,
   type BookmarkLink,
   type BookmarkWorkspaceSnapshot,
@@ -8,27 +9,82 @@ import {
 import { getHost, getRegistrableDomain, getScheme } from '../utils/domain-analysis';
 import { deriveTitleFromUrl } from '../utils/title-derive';
 import { getDomain, normalizeUrl } from '../utils/url-normalization';
+import { createBookmarkSourceRevision } from './bookmark-source-revision';
 
-const TOKEN_REGEX = /<DT><H3\b[^>]*>([\s\S]*?)<\/H3>|<DT><A\b([^>]*)>([\s\S]*?)<\/A>|<DL><p>|<\/DL>/gi;
-const HREF_ATTR_REGEX = /HREF="([^"]*)"/i;
+const TOKEN_REGEX =
+  /<DT>\s*<H3\b([^>]*)>([\s\S]*?)<\/H3>|<DT>\s*<A\b([^>]*)>([\s\S]*?)<\/A>|<DL>\s*<p>|<\/DL>/gi;
+const ATTRIBUTE_VALUE_REGEX = (name: string): RegExp =>
+  new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>\u0060]+))`, 'i');
 
 const stripHtml = (input: string): string => input.replace(/<[^>]+>/g, '').trim();
 
 const createRootFolder = (): BookmarkFolder => ({
   id: 'root',
   type: 'folder',
+  importedTitle: null,
+  displayTitle: 'Imported Bookmarks',
   title: 'Imported Bookmarks',
+  addedAt: null,
+  lastModifiedAt: null,
   path: [],
   children: [],
 });
 
-const createFolder = (title: string, path: string[], index: number): BookmarkFolder => ({
+const createFolder = (
+  importedTitle: string | null,
+  displayTitle: string,
+  path: string[],
+  index: number,
+  addedAt: string | null,
+  lastModifiedAt: string | null,
+): BookmarkFolder => ({
   id: `folder-${index}`,
   type: 'folder',
-  title,
+  importedTitle,
+  displayTitle,
+  title: displayTitle,
+  addedAt,
+  lastModifiedAt,
   path,
   children: [],
 });
+
+const getAttributeValue = (attributes: string, name: string): string | undefined => {
+  const match = ATTRIBUTE_VALUE_REGEX(name).exec(attributes);
+  return match?.[1] ?? match?.[2] ?? match?.[3];
+};
+
+const parseNetscapeTimestamp = (
+  attributes: string,
+  attributeName: 'ADD_DATE' | 'LAST_MODIFIED',
+  entryLabel: string,
+  warnings: ParseWarning[],
+): string | null => {
+  const rawValue = getAttributeValue(attributes, attributeName);
+  if (rawValue === undefined) {
+    return null;
+  }
+
+  if (!/^\d+$/.test(rawValue)) {
+    warnings.push({
+      code: 'MALFORMED_METADATA',
+      message: `${entryLabel} has invalid ${attributeName} metadata`,
+    });
+    return null;
+  }
+
+  const unixSeconds = Number(rawValue);
+  const date = new Date(unixSeconds * 1000);
+  if (!Number.isSafeInteger(unixSeconds) || !Number.isFinite(date.getTime())) {
+    warnings.push({
+      code: 'MALFORMED_METADATA',
+      message: `${entryLabel} has invalid ${attributeName} metadata`,
+    });
+    return null;
+  }
+
+  return date.toISOString();
+};
 
 const summarizeTop = (map: Map<string, number>, limit = 10): CountSummary[] =>
   [...map.entries()]
@@ -55,9 +111,9 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
   let token: RegExpExecArray | null;
 
   while ((token = TOKEN_REGEX.exec(html)) !== null) {
-    const [fullMatch, folderTitleMatch, anchorAttrsMatch, anchorTextMatch] = token;
+    const [fullMatch, folderAttrsMatch, folderTitleMatch, anchorAttrsMatch, anchorTextMatch] = token;
 
-    if (fullMatch === '<DL><p>') {
+    if (/^<DL>/i.test(fullMatch)) {
       if (pendingFolder) {
         folderStack.push(pendingFolder);
         pendingFolder = null;
@@ -65,7 +121,7 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
       continue;
     }
 
-    if (fullMatch === '</DL>') {
+    if (/^<\/DL>/i.test(fullMatch)) {
       if (folderStack.length > 1) {
         folderStack.pop();
       }
@@ -74,9 +130,19 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
 
     if (typeof folderTitleMatch === 'string') {
       folderCount += 1;
-      const title = stripHtml(folderTitleMatch) || `Folder ${folderCount}`;
+      const importedTitle = stripHtml(folderTitleMatch) || null;
+      const displayTitle = importedTitle ?? `Folder ${folderCount}`;
       const parent = folderStack[folderStack.length - 1];
-      const folder = createFolder(title, [...parent.path, title], folderCount);
+      const attributes = folderAttrsMatch ?? '';
+      const entryLabel = `Folder #${folderCount}`;
+      const folder = createFolder(
+        importedTitle,
+        displayTitle,
+        [...parent.path, displayTitle],
+        folderCount,
+        parseNetscapeTimestamp(attributes, 'ADD_DATE', entryLabel, warnings),
+        parseNetscapeTimestamp(attributes, 'LAST_MODIFIED', entryLabel, warnings),
+      );
       parent.children.push(folder);
       pendingFolder = folder;
       continue;
@@ -85,19 +151,18 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
     if (typeof anchorAttrsMatch === 'string') {
       linkCount += 1;
 
-      const hrefMatch = HREF_ATTR_REGEX.exec(anchorAttrsMatch);
-      const url = hrefMatch?.[1]?.trim();
-      const rawTitle = stripHtml(anchorTextMatch ?? '');
+      const url = getAttributeValue(anchorAttrsMatch, 'HREF');
+      const importedTitle = stripHtml(anchorTextMatch ?? '') || null;
 
-      if (!url) {
+      if (url === undefined || url.trim().length === 0) {
         malformedEntries += 1;
         warnings.push({ code: 'MISSING_URL', message: `Entry #${linkCount} missing URL` });
         continue;
       }
 
-      const title = rawTitle || deriveTitleFromUrl(url);
-      if (!rawTitle) {
-        warnings.push({ code: 'MISSING_TITLE', message: `Derived title for ${url}` });
+      const displayTitle = importedTitle ?? deriveTitleFromUrl(url);
+      if (!importedTitle) {
+        warnings.push({ code: 'MISSING_TITLE', message: `Derived title for entry #${linkCount}` });
       }
 
       const scheme = getScheme(url);
@@ -116,10 +181,20 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
       );
 
       const parent = folderStack[folderStack.length - 1];
+      const entryLabel = `Entry #${linkCount}`;
       const bookmark: BookmarkLink = {
         id: `link-${linkCount}`,
         type: 'link',
-        title,
+        importedTitle,
+        displayTitle,
+        title: displayTitle,
+        addedAt: parseNetscapeTimestamp(anchorAttrsMatch, 'ADD_DATE', entryLabel, warnings),
+        lastModifiedAt: parseNetscapeTimestamp(
+          anchorAttrsMatch,
+          'LAST_MODIFIED',
+          entryLabel,
+          warnings,
+        ),
         url,
         normalizedUrl: normalizeUrl(url),
         domain: getDomain(url),
@@ -143,6 +218,8 @@ export const parseBookmarkHtml = (html: string): BookmarkWorkspaceSnapshot => {
   const uniqueUrls = new Set(bookmarks.map((bookmark) => bookmark.normalizedUrl)).size;
 
   return {
+    schemaVersion: BOOKMARK_SNAPSHOT_SCHEMA_VERSION,
+    sourceRevision: createBookmarkSourceRevision(html),
     originalTree: root,
     bookmarks,
     warnings,
